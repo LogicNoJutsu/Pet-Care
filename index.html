@@ -149,6 +149,18 @@ textarea{resize:vertical;min-height:70px}
 .tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:50px;font-size:10px;font-weight:700}
 .tag.active{background:var(--sage4);color:var(--sage)}
 .tag.done{background:var(--warm);color:var(--bark3)}
+/* DOCUMENTS */
+.doc-card{background:var(--lavender3);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;position:relative}
+.doc-icon{font-size:20px;flex-shrink:0;display:inline-block;margin-right:6px;vertical-align:middle}
+.doc-title{font-size:13px;font-weight:800;color:var(--lavender);display:inline;vertical-align:middle}
+.doc-note{font-size:11px;color:var(--bark3);margin-top:4px;line-height:1.4}
+.doc-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.doc-file-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:2px solid var(--lavender2);cursor:pointer}
+.doc-file-link{display:inline-flex;align-items:center;gap:4px;background:#fff;color:var(--lavender);border-radius:6px;padding:5px 9px;font-size:10px;font-weight:700;text-decoration:none;border:1.5px solid var(--lavender2)}
+.upload-row{display:flex;gap:8px;margin-top:6px}
+.upload-btn{flex:1;border:2px dashed #DDD0BE;border-radius:var(--r);padding:11px 6px;text-align:center;cursor:pointer;background:#fff}
+.upload-btn .u-ico{font-size:18px;display:block;margin-bottom:2px}
+.upload-btn .u-lbl{font-size:10px;color:var(--bark3);font-weight:700}
 </style>
 </head>
 <body>
@@ -320,6 +332,11 @@ textarea{resize:vertical;min-height:70px}
       <div class="sep">Veterinary Contacts</div>
       <div id="vet-list"></div>
       <button style="background:var(--sage4);color:var(--sage);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openModal('modal-vet')">+ Add Veterinary</button>
+
+      <div class="sep">Pet Documentation</div>
+      <div style="font-size:11px;color:var(--bark3);margin-bottom:10px;line-height:1.5">Registration papers, insurance, import certificates, adoption papers, etc.</div>
+      <div id="dog-docs-list"></div>
+      <button style="background:var(--lavender3);color:var(--lavender);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openAddDoc()">+ Add Document</button>
       <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveDog()">Save Pet Profile</button>
     </div>
   </div>
@@ -421,18 +438,79 @@ textarea{resize:vertical;min-height:70px}
         <div class="form-group"><label class="form-label">Notes / Findings</label><textarea id="ro-notes" placeholder="What happened, test results, next steps..."></textarea></div>
       </div>
 
-      <!-- IMAGE ATTACHMENT -->
+      <!-- FILE + IMAGE ATTACHMENT -->
       <div class="form-group">
-        <label class="form-label">📎 Attach Images (prescription, report, certificate)</label>
-        <div class="img-upload" onclick="document.getElementById('rec-img-input').click()">
-          <div style="font-size:20px;margin-bottom:3px">🖼</div>
-          <div style="font-size:11px;color:var(--bark3)">Tap to attach images</div>
-          <input type="file" id="rec-img-input" accept="image/*" multiple style="display:none" onchange="handleRecImgs(this)">
+        <label class="form-label">📎 Attach Files</label>
+        <div class="upload-row">
+          <div class="upload-btn" onclick="document.getElementById('rec-img-input').click()">
+            <span class="u-ico">🖼</span>
+            <span class="u-lbl">Add Images</span>
+            <input type="file" id="rec-img-input" accept="image/*" multiple style="display:none" onchange="handleRecImgs(this)">
+          </div>
+          <div class="upload-btn" onclick="document.getElementById('rec-file-input').click()">
+            <span class="u-ico">📄</span>
+            <span class="u-lbl">Add PDF / File</span>
+            <input type="file" id="rec-file-input" accept=".pdf,.doc,.docx,.txt,application/*" multiple style="display:none" onchange="handleRecFiles(this)">
+          </div>
         </div>
         <div class="img-preview" id="rec-img-preview"></div>
+        <div id="rec-file-list" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
       </div>
 
       <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: ADD DOCUMENT ==================== -->
+<div class="modal-overlay" id="modal-doc" style="z-index:300">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Add Document</div>
+      <button class="btn-close" onclick="closeModal('modal-doc')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Document Type *</label>
+        <select id="doc-type">
+          <option value="">Select type...</option>
+          <option>Registration Certificate</option>
+          <option>Insurance Policy</option>
+          <option>Import / Export Certificate</option>
+          <option>Adoption Papers</option>
+          <option>Pedigree Certificate</option>
+          <option>Passport / Travel Document</option>
+          <option>Ownership Transfer</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Document Title / Name</label>
+        <input type="text" id="doc-title" placeholder="e.g. Kennel Club Registration 2023">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="doc-notes" placeholder="What is this document for? Any additional info, reference numbers, expiry dates..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">📎 Attach Files</label>
+        <div class="upload-row">
+          <div class="upload-btn" onclick="document.getElementById('doc-img-input').click()">
+            <span class="u-ico">🖼</span>
+            <span class="u-lbl">Add Images</span>
+            <input type="file" id="doc-img-input" accept="image/*" multiple style="display:none" onchange="handleDocImgs(this)">
+          </div>
+          <div class="upload-btn" onclick="document.getElementById('doc-file-input').click()">
+            <span class="u-ico">📄</span>
+            <span class="u-lbl">Add PDF / File</span>
+            <input type="file" id="doc-file-input" accept=".pdf,.doc,.docx,.txt,application/*" multiple style="display:none" onchange="handleDocFiles(this)">
+          </div>
+        </div>
+        <div class="img-preview" id="doc-img-preview" style="margin-top:6px"></div>
+        <div id="doc-file-list" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveDoc()">Save Document</button>
     </div>
   </div>
 </div>
@@ -452,7 +530,8 @@ let S = {
     remindersSent: {}
   }
 };
-let tempVets = [], tempDogPhoto = null, tempRecImgs = [], currentRecType = 'vaccine';
+let tempVets = [], tempDogPhoto = null, tempRecImgs = [], tempRecFiles = [], currentRecType = 'vaccine';
+let tempDocs = [], tempDocImgs = [], tempDocFiles = [];
 let editDogId = null, currentDogId = null;
 
 // ============================================================
@@ -594,6 +673,9 @@ function dogCardHTML(dog) {
   recs.filter(r => r.type === 'meds' && (!r.endDate || new Date(r.endDate + 'T12:00:00') >= new Date())).forEach(r => {
     chips.push(`<span class="chip sky">🩺 ${r.name}</span>`);
   });
+
+  const docs = dog.docs || [];
+  if (docs.length) chips.push(`<span class="chip" style="background:var(--lavender3);color:var(--lavender)">📄 ${docs.length} doc${docs.length !== 1 ? 's' : ''}</span>`);
 
   return `
     <div class="dog-card-header">
@@ -900,7 +982,7 @@ async function checkAndSendReminders(force) {
 // ADD DOG
 // ============================================================
 function openAddDog() {
-  editDogId = null; tempVets = []; tempDogPhoto = null;
+  editDogId = null; tempVets = []; tempDogPhoto = null; tempDocs = [];
   clearDogForm();
   document.getElementById('modal-dog-title').textContent = 'Add Pet Profile';
   document.getElementById('dog-photo-preview').innerHTML = '';
@@ -912,6 +994,7 @@ function clearDogForm() {
   ['dog-name','dog-breed','dog-dob','dog-weight','dog-color','dog-microchip','dog-allergies','dog-blood','dog-notes']
     .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.getElementById('dog-gender').value = '';
+  renderDocList();
 }
 
 function handleDogPhoto(inp) {
@@ -971,6 +1054,7 @@ function saveDog() {
     notes: document.getElementById('dog-notes').value.trim(),
     photo: tempDogPhoto,
     vets: [...tempVets],
+    docs: [...tempDocs],
     records: [],
     chatNotes: []
   };
@@ -1121,6 +1205,27 @@ function renderDogPage() {
     html += `</div>`;
   }
 
+  // Documents
+  const docs = dog.docs || [];
+  html += `<div class="section-card"><div class="sec-label">📄 Pet Documentation</div>`;
+  if (!docs.length) html += `<div class="no-rec">No documents added yet</div>`;
+  docs.forEach((doc, i) => {
+    const fileLinks = (doc.files || []).map(f =>
+      `<a class="doc-file-link" href="${f.data}" download="${f.name}" onclick="event.stopPropagation()">📄 ${f.name}</a>`
+    ).join('');
+    const imgThumbs = (doc.images || []).map(img =>
+      `<img class="doc-file-thumb" src="${img}" onclick="event.stopPropagation()" alt="doc">`
+    ).join('');
+    html += `<div class="doc-card">
+      <div><span class="doc-icon">📑</span><span class="doc-title">${doc.title || doc.type}</span></div>
+      ${doc.type && doc.title ? `<div style="font-size:10px;color:var(--lavender);font-weight:600;margin-top:2px">${doc.type}</div>` : ''}
+      ${doc.notes ? `<div class="doc-note">${doc.notes}</div>` : ''}
+      ${(doc.images || []).length || (doc.files || []).length ? `<div class="doc-files">${imgThumbs}${fileLinks}</div>` : ''}
+      <button class="btn-rm" onclick="removeDoc(${i})" style="top:8px;right:8px">✕</button>
+    </div>`;
+  });
+  html += `<button style="background:var(--lavender3);color:var(--lavender);border-radius:var(--r);padding:9px;font-size:12px;font-weight:700;width:100%;cursor:pointer;border:none;margin-top:4px" onclick="openAddDoc()">+ Add Document</button></div>`;
+
   // Notes / Vet Chat
   const notes = dog.chatNotes || [];
   html += `
@@ -1169,7 +1274,9 @@ function editDog() {
   set('dog-allergies', dog.allergies); set('dog-blood', dog.blood); set('dog-notes', dog.notes);
   document.getElementById('dog-gender').value = dog.gender || '';
   document.getElementById('dog-photo-preview').innerHTML = dog.photo ? `<img class="img-thumb" src="${dog.photo}">` : '';
+  tempDocs = [...(dog.docs || [])];
   renderVetList();
+  renderDocList();
   document.getElementById('modal-dog-title').textContent = 'Edit Pet Profile';
   openModal('modal-dog');
 }
@@ -1191,8 +1298,9 @@ function openAddRecord() {
     .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.getElementById('rv-vtype').value = 'Core';
   document.getElementById('rd-dtype').value = 'Roundworm';
-  tempRecImgs = [];
+  tempRecImgs = []; tempRecFiles = [];
   document.getElementById('rec-img-preview').innerHTML = '';
+  const rfl = document.getElementById('rec-file-list'); if(rfl) rfl.innerHTML = '';
   openModal('modal-record');
 }
 
@@ -1225,11 +1333,93 @@ function handleRecImgs(inp) {
   });
 }
 
+function handleRecFiles(inp) {
+  Array.from(inp.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      tempRecFiles.push({ name: f.name, data: e.target.result });
+      const el = document.getElementById('rec-file-list');
+      if(el) el.innerHTML += `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--sky3);color:var(--sky);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:700">📄 ${f.name}</span>`;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+// ---- DOCUMENTS (dog profile) ----
+function openAddDoc() {
+  tempDocImgs = []; tempDocFiles = [];
+  ['doc-type','doc-title','doc-notes'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('doc-img-preview').innerHTML = '';
+  document.getElementById('doc-file-list').innerHTML = '';
+  openModal('modal-doc');
+}
+
+function handleDocImgs(inp) {
+  Array.from(inp.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      tempDocImgs.push(e.target.result);
+      document.getElementById('doc-img-preview').innerHTML += `<img class="img-thumb" src="${e.target.result}">`;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function handleDocFiles(inp) {
+  Array.from(inp.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      tempDocFiles.push({ name: f.name, data: e.target.result });
+      document.getElementById('doc-file-list').innerHTML += `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--lavender3);color:var(--lavender);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:700">📄 ${f.name}</span>`;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function saveDoc() {
+  const type = document.getElementById('doc-type').value;
+  const title = document.getElementById('doc-title').value.trim();
+  if (!type && !title) { alert('Please select a document type or enter a title.'); return; }
+  tempDocs.push({
+    id: uid(),
+    type,
+    title: title || type,
+    notes: document.getElementById('doc-notes').value.trim(),
+    images: [...tempDocImgs],
+    files: [...tempDocFiles]
+  });
+  renderDocList();
+  closeModal('modal-doc');
+}
+
+function renderDocList() {
+  const el = document.getElementById('dog-docs-list');
+  if (!el) return;
+  if (!tempDocs.length) { el.innerHTML = ''; return; }
+  el.innerHTML = tempDocs.map((d, i) => `
+    <div class="doc-card" style="margin-bottom:8px">
+      <span class="doc-icon">📑</span><span class="doc-title">${d.title}</span>
+      ${d.notes ? `<div class="doc-note">${d.notes}</div>` : ''}
+      ${d.images.length ? `<div style="font-size:10px;color:var(--bark3);margin-top:4px">${d.images.length} image${d.images.length!==1?'s':''}</div>` : ''}
+      ${d.files.length ? `<div style="font-size:10px;color:var(--bark3);">${d.files.map(f=>f.name).join(', ')}</div>` : ''}
+      <button class="btn-rm" onclick="removeTempDoc(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeTempDoc(i) { tempDocs.splice(i, 1); renderDocList(); }
+
+function removeDoc(i) {
+  const dog = S.dogs.find(d => d.id === currentDogId);
+  if (!dog || !dog.docs) return;
+  dog.docs.splice(i, 1);
+  saveLocal(); syncToGist(); renderDogPage();
+}
+
 function saveRecord() {
   const dog = S.dogs.find(d => d.id === currentDogId);
   if (!dog) return;
   if (!dog.records) dog.records = [];
-  let rec = { id: uid(), type: currentRecType, images: [...tempRecImgs] };
+  let rec = { id: uid(), type: currentRecType, images: [...tempRecImgs], files: [...tempRecFiles] };
 
   if (currentRecType === 'vaccine') {
     const name = document.getElementById('rv-name').value.trim();
