@@ -215,6 +215,13 @@ textarea{resize:vertical;min-height:70px}
         <input type="text" id="gh-gist-id" placeholder="Will be created automatically">
       </div>
       <div id="gh-status" style="display:none"></div>
+      <div class="warn-box" style="font-size:11px;margin-bottom:8px">
+        <strong>⚠️ If sync fails, check:</strong><br>
+        • Token expired → generate a new one at github.com<br>
+        • Wrong scope → must have <strong>gist</strong> ticked (not just repo)<br>
+        • Extra spaces in token → paste carefully<br>
+        • Must use <strong>classic token</strong>, not fine-grained
+      </div>
       <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveGithubSettings()">Save & Test Connection</button>
       <button class="btn-full" style="background:var(--sage);color:#fff;margin-top:8px" onclick="manualSync()">⟳ Sync Now</button>
     </div>
@@ -633,41 +640,65 @@ function getUpcomingDue() {
 // ============================================================
 // GITHUB GIST SYNC
 // ============================================================
+function ghHeaders(token) {
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+async function verifyToken(token) {
+  // Quick check: call /user to see if token is valid before syncing
+  const r = await fetch('https://api.github.com/user', {
+    headers: ghHeaders(token)
+  });
+  if (r.status === 401) return { ok: false, reason: 'Token is invalid or expired. Please generate a new one.' };
+  if (r.status === 403) return { ok: false, reason: 'Token does not have permission. Make sure the "gist" scope is checked.' };
+  if (!r.ok) return { ok: false, reason: `GitHub returned error ${r.status}. Check your internet connection.` };
+  const user = await r.json();
+  return { ok: true, login: user.login };
+}
+
 async function syncToGist() {
   const { ghToken, ghGistId } = S.settings;
   if (!ghToken) { setSyncStatus('Setup GitHub sync in ⚙ Settings', 'yellow'); return; }
-  setSyncStatus('Syncing to GitHub...', 'yellow');
+  setSyncStatus('Syncing...', 'yellow');
   const content = JSON.stringify({ dogs: S.dogs }, null, 2);
   try {
     if (ghGistId) {
       const r = await fetch(`https://api.github.com/gists/${ghGistId}`, {
         method: 'PATCH',
-        headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+        headers: ghHeaders(ghToken),
         body: JSON.stringify({ files: { 'pawcare-data.json': { content } } })
       });
-      if (!r.ok) throw new Error('Update failed');
+      if (r.status === 401) { setSyncStatus('✗ Token expired — re-enter in ⚙ Setup', 'red'); return; }
+      if (r.status === 404) { setSyncStatus('✗ Gist not found — clear Gist ID in ⚙ Setup', 'red'); return; }
+      if (!r.ok) { const err = await r.json().catch(()=>{}); setSyncStatus(`✗ GitHub error ${r.status}`, 'red'); return; }
     } else {
       const r = await fetch('https://api.github.com/gists', {
         method: 'POST',
-        headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+        headers: ghHeaders(ghToken),
         body: JSON.stringify({
           description: 'PawCare – Pet Health Records',
           public: false,
           files: { 'pawcare-data.json': { content } }
         })
       });
-      if (!r.ok) throw new Error('Create failed');
+      if (r.status === 401) { setSyncStatus('✗ Token invalid — check in ⚙ Setup', 'red'); return; }
+      if (!r.ok) { setSyncStatus(`✗ Could not create Gist (${r.status})`, 'red'); return; }
       const data = await r.json();
       S.settings.ghGistId = data.id;
       const el = document.getElementById('gh-gist-id');
       if (el) el.value = data.id;
-      setStatusBox('gh-status', `✓ Gist created! ID: ${data.id}. Save this ID to share with others.`, true);
+      setStatusBox('gh-status', `✓ Gist created! ID: ${data.id}`, true);
       saveLocal();
     }
     setSyncStatus('✓ Synced to GitHub', 'green');
   } catch (e) {
-    setSyncStatus('Sync failed — check token', 'red');
-    console.error(e);
+    setSyncStatus('✗ Network error — check connection', 'red');
+    console.error('syncToGist error:', e);
   }
 }
 
@@ -676,7 +707,7 @@ async function syncFromGist() {
   if (!ghToken || !ghGistId) return;
   try {
     const r = await fetch(`https://api.github.com/gists/${ghGistId}`, {
-      headers: { 'Authorization': `token ${ghToken}` }
+      headers: ghHeaders(ghToken)
     });
     if (!r.ok) return;
     const data = await r.json();
@@ -687,10 +718,9 @@ async function syncFromGist() {
         S.dogs = parsed.dogs;
         saveLocal();
         renderLanding();
-        setSyncStatus('✓ Synced from GitHub', 'green');
       }
     }
-  } catch (e) { console.error('Sync from gist failed', e); }
+  } catch (e) { console.error('syncFromGist error:', e); }
 }
 
 async function manualSync() {
@@ -704,11 +734,27 @@ function setSyncStatus(msg, color = 'green') {
   dot.className = 'sync-dot' + (color === 'yellow' ? ' yellow' : color === 'red' ? ' red' : '');
 }
 
-function saveGithubSettings() {
-  S.settings.ghToken = document.getElementById('gh-token').value.trim();
-  S.settings.ghGistId = document.getElementById('gh-gist-id').value.trim();
+async function saveGithubSettings() {
+  const token = document.getElementById('gh-token').value.trim();
+  const gistId = document.getElementById('gh-gist-id').value.trim();
+  if (!token) { setStatusBox('gh-status', '✗ Please enter your GitHub token.', false); return; }
+
+  setStatusBox('gh-status', '🔄 Verifying token...', true);
+  const check = await verifyToken(token);
+  if (!check.ok) {
+    setStatusBox('gh-status', '✗ ' + check.reason, false);
+    setSyncStatus('✗ Token invalid', 'red');
+    return;
+  }
+
+  S.settings.ghToken = token;
+  S.settings.ghGistId = gistId;
   saveLocal();
-  manualSync().then(() => setStatusBox('gh-status', '✓ Connected and synced successfully!', true));
+  setStatusBox('gh-status', `✓ Token valid — logged in as @${check.login}. Syncing...`, true);
+  await manualSync();
+  if (S.settings.ghGistId) {
+    setStatusBox('gh-status', `✓ Connected as @${check.login} · Gist ID: ${S.settings.ghGistId}`, true);
+  }
 }
 
 function setStatusBox(id, msg, ok) {
@@ -1238,4 +1284,3 @@ setTimeout(async () => {
 </script>
 </body>
 </html>
-
