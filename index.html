@@ -477,7 +477,7 @@ let S={members:[],settings:{ghToken:'',ghGistId:'',email:'',ejsPubKey:'',ejsServ
 let currentMemberId=null,editMemberId=null,selectedMemberType='person';
 let tempContacts=[],tempDocs=[],tempPhoto=null;
 let tempDocImgs=[],tempDocFiles=[],docFromDetail=false;
-let tempRecImgs=[],tempRecFiles=[],currentRecType=null;
+let tempRecImgs=[],tempRecFiles=[],currentRecType=null,editRecordId=null;
 let activeContactType='doctor';
 
 // UTILS
@@ -505,7 +505,7 @@ function restoreSettingsUI(){const st=S.settings;const sv=(id,v)=>{const el=docu
 
 // SCREENS / MODALS
 function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');if(id==='modal-record')editRecordId=null;}
 function showLanding(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-landing').classList.add('active');renderLanding();checkAndSendReminders(false);}
 function showSettings(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-settings').classList.add('active');restoreSettingsUI();}
 function showDetail(id){currentMemberId=id;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-detail').classList.add('active');renderDetail();}
@@ -562,21 +562,32 @@ function renderLanding(){
 }
 function getMemberAlerts(m){
   const alerts=[];const recs=m.records||[];
-  recs.filter(r=>r.type==='vaccine'&&r.nextDate).forEach(r=>{const d=daysUntil(r.nextDate);if(d<=15)alerts.push({cls:d<0?'red':'amber',label:`💉 ${r.name} ${d<0?'overdue':`in ${d}d`}`});});
-  recs.filter(r=>r.type==='deworm'&&r.nextDate).forEach(r=>{const d=daysUntil(r.nextDate);if(d<=15)alerts.push({cls:d<0?'red':'amber',label:`🐛 Deworm ${d<0?'overdue':`in ${d}d`}`});});
-  recs.filter(r=>r.type==='meds'&&r.refillDate).forEach(r=>{const d=daysUntil(r.refillDate);if(d<=10)alerts.push({cls:d<0?'red':'amber',label:`🔄 ${r.name} refill ${d<0?'overdue':`in ${d}d`}`});});
-  recs.filter(r=>r.type==='meds'&&(!r.endDate||new Date(r.endDate+'T12:00:00')>=new Date())&&!r.refillDate).forEach(r=>alerts.push({cls:'sky',label:`💊 ${r.name}`}));
-  recs.filter(r=>r.type==='appointment'&&r.aptDate).forEach(r=>{const d=daysUntil(r.aptDate.split('T')[0]);if(d>=0&&d<=7)alerts.push({cls:'violet',label:`📅 ${r.title||'Appt'} in ${d}d`});else if(d===-1)alerts.push({cls:'red',label:`📅 ${r.title||'Appt'} today`});});
-  const docs=m.docs||[];if(docs.length)alerts.push({cls:'teal',label:`📄 ${docs.length} doc${docs.length!==1?'s':''}`});
+  recs.filter(r=>r.type==='vaccine'&&r.nextDate).forEach(r=>{const d=daysUntil(r.nextDate);if(d<=15)alerts.push({cls:d<0?'red':'amber',label:'💉 '+r.name+' '+(d<0?'overdue':'in '+d+'d')});});
+  recs.filter(r=>r.type==='deworm'&&r.nextDate).forEach(r=>{const d=daysUntil(r.nextDate);if(d<=15)alerts.push({cls:d<0?'red':'amber',label:'🐛 Deworm '+(d<0?'overdue':'in '+d+'d')});});
+  recs.filter(r=>r.type==='meds'&&r.refillDate).forEach(r=>{const d=daysUntil(r.refillDate);if(d<=10)alerts.push({cls:d<0?'red':'amber',label:'🔄 '+r.name+' refill '+(d<0?'overdue':'in '+d+'d')});});
+  recs.filter(r=>r.type==='appointment'&&r.aptDate).forEach(r=>{const d=daysUntil(r.aptDate.split('T')[0]);if(d===0)alerts.push({cls:'red',label:'📅 '+(r.title||'Appt')+' today'});else if(d>0&&d<=7)alerts.push({cls:'violet',label:'📅 '+(r.title||'Appt')+' in '+d+'d'});});
   return alerts;
 }
 function memberCardHTML(m){
   const age=calcAge(m.dob);
-  const av=m.photo?`<img class="mc-avatar" src="${m.photo}">`:`<div class="mc-avatar-ph ${m.memberType}">${getMemberEmoji(m)}</div>`;
+  const av=m.photo?'<img class="mc-avatar" src="'+m.photo+'">':`<div class="mc-avatar-ph ${m.memberType}">${getMemberEmoji(m)}</div>`;
   const pc=(m.contacts||[]).find(c=>c.primary);
   const alerts=getMemberAlerts(m);const shown=alerts.slice(0,3);const extra=alerts.length-3;
-  const sub=m.memberType==='person'?`${m.relation||''}${age?` · ${age}`:''}${m.blood?` · ${m.blood}`:''}`:`${m.species||'Pet'}${m.breed?': '+m.breed:''}${age?` · ${age}`:''}`;
-  return`<div class="mc-header">${av}<div style="flex:1"><div class="mc-name">${m.name}</div><div class="mc-sub">${sub}</div><span class="mc-badge ${m.memberType}">${m.memberType==='person'?m.relation||'Person':'🐾 Pet'}</span>${pc?`<div style="font-size:10px;color:var(--teal);font-weight:700;margin-top:4px">${m.memberType==='person'?'🏥':'🐾'} ${pc.name}</div>`:''}</div><div style="font-size:18px;opacity:.3">›</div></div>${shown.length?`<div class="alert-chips">${shown.map(a=>`<span class="achip ${a.cls}">${a.label}</span>`).join('')}${extra>0?`<span class="more-chip">+${extra} more</span>`:''}</div>`:`<div style="font-size:11px;color:var(--ink3);margin-top:4px">All up to date</div>`}`;
+  const sub=m.memberType==='person'?(m.relation||'')+(age?' · '+age:'')+(m.blood?' · '+m.blood:''):(m.species||'Pet')+(m.breed?': '+m.breed:'')+(age?' · '+age:'');
+  // Last vitals line for person
+  let vitalsLine='';
+  if(m.memberType==='person'){
+    const lv=(m.vitals||[])[0];
+    if(lv){
+      const vp=[];
+      if(lv.bpSys&&lv.bpDia)vp.push('BP '+lv.bpSys+'/'+lv.bpDia);
+      if(lv.sugar)vp.push('Sugar '+lv.sugar+(lv.stype?' ('+lv.stype+')':''));
+      if(lv.weight)vp.push(lv.weight+'kg');
+      if(lv.pulse)vp.push(lv.pulse+' bpm');
+      if(vp.length)vitalsLine='<div style="font-size:10px;color:var(--ink3);margin-top:5px;line-height:1.5">❤️ Last: '+vp.join(' · ')+'</div>';
+    }
+  }
+  return '<div class="mc-header">'+av+'<div style="flex:1"><div class="mc-name">'+m.name+'</div><div class="mc-sub">'+sub+'</div><span class="mc-badge '+m.memberType+'">'+(m.memberType==='person'?m.relation||'Person':'🐾 Pet')+'</span>'+(pc?'<div style="font-size:10px;color:var(--teal);font-weight:700;margin-top:4px">'+(m.memberType==='person'?'🏥':'🐾')+' '+pc.name+'</div>':'')+vitalsLine+'</div><div style="font-size:18px;opacity:.3">›</div></div>'+(shown.length?'<div class="alert-chips">'+shown.map(a=>'<span class="achip '+a.cls+'">'+a.label+'</span>').join('')+(extra>0?'<span class="more-chip">+'+extra+' more</span>':'')+'</div>':'<div style="font-size:11px;color:var(--ink3);margin-top:4px">All up to date</div>');
 }
 function renderAlertBanner(){const banner=document.getElementById('alert-banner');const urgent=[];S.members.forEach(m=>{const a=getMemberAlerts(m).filter(x=>x.cls==='red');if(a.length)urgent.push(`${m.name}: ${a.map(x=>x.label).join(', ')}`);});if(!urgent.length){banner.style.display='none';return;}banner.style.display='block';banner.className='alert-banner red';banner.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--rose)">⚠️ ${urgent.slice(0,2).join(' · ')}${urgent.length>2?` +${urgent.length-2} more`:''}</div>`;}
 
@@ -638,24 +649,36 @@ function renderDetail(){
   document.getElementById('detail-content').innerHTML=html;
 }
 
+function recActions(r){
+  return '<div style="display:flex;gap:5px;margin-top:7px">'+
+    '<button onclick="event.stopPropagation();editRecord(\''+r.id+'\')" style="background:var(--sky3);color:var(--sky);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer">✏️ Edit</button>'+
+    '<button onclick="event.stopPropagation();deleteRecord(\''+r.id+'\')" style="background:var(--rose3);color:var(--rose);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer">🗑 Delete</button>'+
+  '</div>';
+}
 function buildRecHTML(r){
   const eyeBtns=[
-    ...(r.images||[]).map((src,i)=>`<button class="eye-btn" onclick="event.stopPropagation();previewFile('${src}','Image ${i+1}')">👁 Image ${i+1}</button>`),
-    ...(r.files||[]).map(f=>`<button class="eye-btn" onclick="event.stopPropagation();previewFile(\`${f.data}\`,'${f.name.replace(/'/g,"\\'")}')">👁 ${f.name}</button>`)
+    ...(r.images||[]).map((src,i)=>'<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+src+'\',\'Image '+(i+1)+'\')">👁 Image '+(i+1)+'</button>'),
+    ...(r.files||[]).map(f=>'<button class="eye-btn" onclick="event.stopPropagation();previewFile(`'+f.data+'`,\''+f.name.replace(/'/g,"\\'")+'\')" >👁 '+f.name+'</button>')
   ];
-  const attachments=eyeBtns.length?`<div style="display:flex;flex-wrap:wrap;margin-top:6px">${eyeBtns.join('')}</div>`:'';
+  const attachments=eyeBtns.length?'<div style="display:flex;flex-wrap:wrap;margin-top:6px">'+eyeBtns.join('')+'</div>':'';
+  const actions=recActions(r);
   if(r.type==='meds'){
     const act=!r.endDate||new Date(r.endDate+'T12:00:00')>=new Date();
     const rd=r.refillDate?daysUntil(r.refillDate):null;
-    const rtag=rd!==null?`<span class="tag ${rd<0?'exp':rd<=10?'refill':'ok'}">🔄 Refill ${rd<0?'overdue':`in ${rd}d`}</span>`:'';
-    return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.name} <span class="tag ${act?'active':'done'}">${act?'Active':'Done'}</span>${rtag}</div><div class="rec-meta">${[r.dosage,r.frequency,r.condition].filter(Boolean).join(' · ')}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}${attachments}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Start</div><div class="date-val">${fmtDate(r.startDate)}</div>${r.refillDate?`<div class="date-next ${rd<0?'exp':rd<=10?'warn':'ok'}">↻ ${fmtDate(r.refillDate)}</div>`:''}</div></div>`;
+    const rtag=rd!==null?'<span class="tag '+(rd<0?'exp':rd<=10?'refill':'ok')+'">🔄 Refill '+(rd<0?'overdue':'in '+rd+'d')+'</span>':'';
+    return'<div class="rec-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1"><div class="rec-name">'+r.name+' <span class="tag '+(act?'active':'done')+'">'+(act?'Active':'Done')+'</span>'+rtag+'</div><div class="rec-meta">'+[r.dosage,r.frequency,r.condition].filter(Boolean).join(' · ')+'</div>'+(r.notes?'<div class="rec-meta" style="font-style:italic">'+r.notes+'</div>':'')+attachments+'</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Start</div><div class="date-val">'+fmtDate(r.startDate)+'</div>'+(r.refillDate?'<div class="date-next '+(rd<0?'exp':rd<=10?'warn':'ok')+'">↻ '+fmtDate(r.refillDate)+'</div>':'')+'</div></div>'+actions+'</div>';
   }
-  if(r.type==='vaccine'){const d=daysUntil(r.nextDate);const nc=r.nextDate?(d<0?'exp':d<=15?'warn':'ok'):'';const nl=r.nextDate?(d<0?`OD ${Math.abs(d)}d`:d===0?'Today':`In ${d}d`):'';return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.name}</div><div class="rec-meta">${r.vetProvider||''}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}${attachments}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Given</div><div class="date-val">${fmtDate(r.date)}</div>${r.nextDate?`<div class="date-next ${nc}">↻ ${nl}</div>`:''}</div></div>`;}
-  if(r.type==='deworm'){const d=daysUntil(r.nextDate);const nc=r.nextDate?(d<0?'exp':d<=14?'warn':'ok'):'';const nl=r.nextDate?(d<0?`OD ${Math.abs(d)}d`:d===0?'Today':`In ${d}d`):'';return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.name}</div><div class="rec-meta">${r.dtype||''}${r.dose?` · ${r.dose}`:''}</div></div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Given</div><div class="date-val">${fmtDate(r.date)}</div>${r.nextDate?`<div class="date-next ${nc}">↻ ${nl}</div>`:''}</div></div>`;}
-  if(r.type==='appointment'){const d=daysUntil(r.aptDate?r.aptDate.split('T')[0]:null);return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.title||'Appointment'}</div><div class="rec-meta">${[r.doctor,r.location].filter(Boolean).join(' · ')}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Date</div><div class="date-val" style="font-size:11px">${fmtDate(r.aptDate)}</div>${d!==null&&d>=0&&d<=7?`<div class="date-next warn">In ${d}d</div>`:''}</div></div>`;}
-  // prescription, lab, surgery, other
+  if(r.type==='vaccine'){const d=daysUntil(r.nextDate);const nc=r.nextDate?(d<0?'exp':d<=15?'warn':'ok'):'';const nl=r.nextDate?(d<0?'OD '+Math.abs(d)+'d':d===0?'Today':'In '+d+'d'):'';return'<div class="rec-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1"><div class="rec-name">'+r.name+'</div><div class="rec-meta">'+(r.vetProvider||'')+'</div>'+(r.notes?'<div class="rec-meta" style="font-style:italic">'+r.notes+'</div>':'')+attachments+'</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Given</div><div class="date-val">'+fmtDate(r.date)+'</div>'+(r.nextDate?'<div class="date-next '+nc+'">↻ '+nl+'</div>':'')+'</div></div>'+actions+'</div>';}
+  if(r.type==='deworm'){const d=daysUntil(r.nextDate);const nc=r.nextDate?(d<0?'exp':d<=14?'warn':'ok'):'';const nl=r.nextDate?(d<0?'OD '+Math.abs(d)+'d':d===0?'Today':'In '+d+'d'):'';return'<div class="rec-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1"><div class="rec-name">'+r.name+'</div><div class="rec-meta">'+(r.dtype||'')+(r.dose?' · '+r.dose:'')+'</div></div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Given</div><div class="date-val">'+fmtDate(r.date)+'</div>'+(r.nextDate?'<div class="date-next '+nc+'">↻ '+nl+'</div>':'')+'</div></div>'+actions+'</div>';}
+  if(r.type==='appointment'){const d=daysUntil(r.aptDate?r.aptDate.split('T')[0]:null);return'<div class="rec-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1"><div class="rec-name">'+(r.title||'Appointment')+'</div><div class="rec-meta">'+[r.doctor,r.location].filter(Boolean).join(' · ')+'</div>'+(r.notes?'<div class="rec-meta" style="font-style:italic">'+r.notes+'</div>':'')+'</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Date</div><div class="date-val" style="font-size:11px">'+fmtDate(r.aptDate)+'</div>'+(d!==null&&d>=0&&d<=7?'<div class="date-next warn">In '+d+'d</div>':'')+'</div></div>'+actions+'</div>';}
   const dateField=r.aptDate||r.date;const titleField=r.title||r.type;
-  return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${titleField}</div><div class="rec-meta">${[r.doctor,r.labName,r.hospital,r.surgeon].filter(Boolean).join(' · ')}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}${attachments}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Date</div><div class="date-val">${fmtDate(dateField)}</div></div></div>`;
+  return'<div class="rec-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1"><div class="rec-name">'+titleField+'</div><div class="rec-meta">'+[r.doctor,r.labName,r.hospital,r.surgeon].filter(Boolean).join(' · ')+'</div>'+(r.notes?'<div class="rec-meta" style="font-style:italic">'+r.notes+'</div>':'')+attachments+'</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Date</div><div class="date-val">'+fmtDate(dateField)+'</div></div></div>'+actions+'</div>';
+}
+function deleteRecord(rid){
+  if(!confirm('Delete this record?'))return;
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;
+  m.records=(m.records||[]).filter(r=>r.id!==rid);
+  saveLocal();syncToGist();renderDetail();
 }
 
 function addNote(){const inp=document.getElementById('note-input'),text=inp.value.trim();if(!text)return;const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;if(!m.chatNotes)m.chatNotes=[];m.chatNotes.unshift({id:uid(),text,ts:new Date().toISOString()});saveLocal();syncToGist();renderDetail();}
@@ -675,11 +698,39 @@ const PERSON_TYPES=[{t:'meds',l:'💊 Medication'},{t:'prescription',l:'📝 Pre
 
 function openAddRecord(){
   const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;
+  editRecordId=null;
   const types=m.memberType==='person'?PERSON_TYPES:PET_TYPES;
   currentRecType=types[0].t;
-  document.getElementById('rec-type-tabs').innerHTML=types.map(tp=>`<button class="rtab${tp.t===currentRecType?' active':''}" onclick="setRecType('${tp.t}',this)">${tp.l}</button>`).join('');
+  document.getElementById('rec-type-tabs').innerHTML=types.map(tp=>'<button class="rtab'+(tp.t===currentRecType?' active':'')+'" onclick="setRecType(\''+tp.t+'\',this)">'+tp.l+'</button>').join('');
+  document.querySelector('#modal-record .modal-title').textContent='Add Health Record';
   tempRecImgs=[];tempRecFiles=[];document.getElementById('rec-img-preview').innerHTML='';document.getElementById('rec-file-list').innerHTML='';
   renderRecFields(currentRecType,m.memberType);openModal('modal-record');
+}
+function editRecord(rid){
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;
+  const r=(m.records||[]).find(x=>x.id===rid);if(!r)return;
+  editRecordId=rid;
+  const types=m.memberType==='person'?PERSON_TYPES:PET_TYPES;
+  currentRecType=r.type;
+  document.getElementById('rec-type-tabs').innerHTML=types.map(tp=>'<button class="rtab'+(tp.t===r.type?' active':'')+'" onclick="setRecType(\''+tp.t+'\',this)">'+tp.l+'</button>').join('');
+  document.querySelector('#modal-record .modal-title').textContent='Edit Record';
+  tempRecImgs=[...(r.images||[])];tempRecFiles=[...(r.files||[])];
+  document.getElementById('rec-img-preview').innerHTML=tempRecImgs.map(s=>'<img class="img-thumb" src="'+s+'">').join('');
+  document.getElementById('rec-file-list').innerHTML=tempRecFiles.map(f=>'<span class="file-chip">📄 '+f.name+'</span>').join('');
+  renderRecFields(r.type,m.memberType);
+  // Pre-fill fields after render
+  setTimeout(()=>{
+    const sv=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v;};
+    if(r.type==='meds'){sv('rf-name',r.name);sv('rf-dosage',r.dosage);sv('rf-cond',r.condition);sv('rf-start',r.startDate);sv('rf-end',r.endDate);sv('rf-supply',r.supply);sv('rf-refill',r.refillDate);sv('rf-doctor',r.vetProvider);sv('rf-notes',r.notes);const fq=document.getElementById('rf-freq');if(fq&&r.frequency)fq.value=r.frequency;}
+    else if(r.type==='vaccine'){sv('rf-name',r.name);sv('rf-date',r.date);sv('rf-next',r.nextDate);sv('rf-lot',r.lot);sv('rf-vp',r.vetProvider);sv('rf-notes',r.notes);}
+    else if(r.type==='deworm'){sv('rf-name',r.name);sv('rf-date',r.date);sv('rf-next',r.nextDate);sv('rf-dose',r.dose);sv('rf-notes',r.notes);const dt=document.getElementById('rf-dtype');if(dt&&r.dtype)dt.value=r.dtype;}
+    else if(r.type==='appointment'){sv('rf-title',r.title);sv('rf-aptdate',r.aptDate);sv('rf-doctor',r.doctor);sv('rf-location',r.location);sv('rf-notes',r.notes);}
+    else if(r.type==='prescription'){sv('rf-title',r.title);sv('rf-date',r.date);sv('rf-doctor',r.doctor);sv('rf-notes',r.notes);}
+    else if(r.type==='lab'){sv('rf-title',r.title);sv('rf-date',r.date);sv('rf-lab',r.labName);sv('rf-notes',r.notes);}
+    else if(r.type==='surgery'){sv('rf-title',r.title);sv('rf-date',r.date);sv('rf-hospital',r.hospital);sv('rf-surgeon',r.surgeon);sv('rf-notes',r.notes);}
+    else{sv('rf-title',r.title);sv('rf-date',r.date);sv('rf-doctor',r.doctor);sv('rf-notes',r.notes);}
+  },50);
+  openModal('modal-record');
 }
 function setRecType(t,btn){currentRecType=t;document.querySelectorAll('#rec-type-tabs .rtab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const m=S.members.find(x=>x.id===currentMemberId);renderRecFields(t,m?m.memberType:'pet');}
 
@@ -701,7 +752,8 @@ function autoND(){const d=gv('rf-date');if(d){const el=document.getElementById('
 
 function saveRecord(){
   const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;if(!m.records)m.records=[];
-  let rec={id:uid(),type:currentRecType,images:[...tempRecImgs],files:[...tempRecFiles]};
+  const existingId=editRecordId||uid();
+  let rec={id:existingId,type:currentRecType,images:[...tempRecImgs],files:[...tempRecFiles]};
   if(currentRecType==='meds'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,dosage:gv('rf-dosage'),frequency:gv('rf-freq'),condition:gv('rf-cond'),startDate:gv('rf-start'),endDate:gv('rf-end'),supply:gv('rf-supply'),refillDate:gv('rf-refill'),vetProvider:gv('rf-doctor'),notes:gv('rf-notes')};}
   else if(currentRecType==='vaccine'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,date:gv('rf-date'),nextDate:gv('rf-next'),lot:gv('rf-lot'),vetProvider:gv('rf-vp'),notes:gv('rf-notes')};}
   else if(currentRecType==='deworm'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,dtype:gv('rf-dtype'),date:gv('rf-date'),nextDate:gv('rf-next'),dose:gv('rf-dose'),notes:gv('rf-notes')};}
@@ -710,7 +762,14 @@ function saveRecord(){
   else if(currentRecType==='lab'){const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,date:gv('rf-date'),labName:gv('rf-lab'),notes:gv('rf-notes')};}
   else if(currentRecType==='surgery'){const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,date:gv('rf-date'),hospital:gv('rf-hospital'),surgeon:gv('rf-surgeon'),notes:gv('rf-notes')};}
   else{const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,date:gv('rf-date'),doctor:gv('rf-doctor'),notes:gv('rf-notes')};}
-  m.records.unshift(rec);saveLocal();syncToGist();closeModal('modal-record');renderDetail();checkAndSendReminders(false);
+  if(editRecordId){
+    const idx=m.records.findIndex(x=>x.id===editRecordId);
+    if(idx>=0)m.records[idx]=rec;else m.records.unshift(rec);
+  } else {
+    m.records.unshift(rec);
+  }
+  editRecordId=null;
+  saveLocal();syncToGist();closeModal('modal-record');renderDetail();checkAndSendReminders(false);
 }
 function handleRecImgs(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempRecImgs.push(e.target.result);document.getElementById('rec-img-preview').innerHTML+=`<img class="img-thumb" src="${e.target.result}">`;};r.readAsDataURL(f);});}
 function handleRecFiles(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempRecFiles.push({name:f.name,data:e.target.result});document.getElementById('rec-file-list').innerHTML+=`<span class="file-chip">📄 ${f.name}</span>`;};r.readAsDataURL(f);});}
