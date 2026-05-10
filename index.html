@@ -5,1472 +5,698 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#3D2C1E">
-<title>PawCare – Pet Health Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#1A2942">
+<title>MediTrack – Family Health</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --cream:#FDF8F0;--warm:#F5EDD8;--bark:#3D2C1E;--bark2:#6B4C33;--bark3:#9B7355;
-  --sage:#4A7C59;--sage2:#6BA880;--sage3:#A8D5B5;--sage4:#E8F5ED;
-  --gold:#D4A843;--gold2:#F0C870;--gold3:#FBE9B7;
-  --rose:#C4626A;--rose2:#E8949A;--rose3:#FAE4E5;
-  --sky:#4A7FA8;--sky2:#7AADD4;--sky3:#D4EAF7;
-  --lavender:#7A6BA8;--lavender2:#A89ED4;--lavender3:#E8E5F7;
-  --r:12px;--r2:20px;--r3:28px;
+  --navy:#1A2942;--navy2:#243650;--navy3:#3A5278;
+  --ink:#1C1C2E;--ink2:#4A4A6A;--ink3:#8A8AAA;
+  --bg:#F4F6FB;--surface:#FFFFFF;
+  --teal:#0D9488;--teal2:#14B8A6;--teal3:#CCFBF1;
+  --amber:#D97706;--amber2:#F59E0B;--amber3:#FEF3C7;
+  --rose:#E11D48;--rose2:#FB7185;--rose3:#FFE4E6;
+  --violet:#7C3AED;--violet2:#A78BFA;--violet3:#EDE9FE;
+  --sky:#0284C7;--sky2:#38BDF8;--sky3:#E0F2FE;
+  --sage:#16A34A;--sage2:#4ADE80;--sage3:#DCFCE7;
+  --r:10px;--r2:16px;--r3:24px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
 }
-body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--bark);min-height:100vh;overflow-x:hidden;font-size:14px}
-h1,h2,h3{font-family:'Playfair Display',serif}
-button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;outline:none}
-input,select,textarea{font-family:'Nunito',sans-serif;outline:none;border:1.5px solid #DDD0BE;background:#fff;color:var(--bark);border-radius:var(--r);padding:10px 14px;width:100%;font-size:14px;transition:border-color .2s}
-input:focus,select:focus,textarea:focus{border-color:var(--bark3)}
-textarea{resize:vertical;min-height:70px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;font-size:14px}
+h1,h2{font-family:'DM Serif Display',serif}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:1.5px solid #E2E8F0;background:#fff;color:var(--ink);border-radius:var(--r);padding:10px 13px;width:100%;font-size:14px;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--navy3)}
+textarea{resize:vertical;min-height:68px}
 .screen{display:none;flex-direction:column;min-height:100vh}
 .screen.active{display:flex}
-
-/* TOP BAR */
-.topbar{background:var(--bark);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar h1{font-size:20px;color:#fff}
-.topbar .sub{font-size:10px;color:var(--bark3);font-family:'Nunito',sans-serif;font-weight:600}
-.btn-add{background:var(--gold);color:var(--bark);border-radius:50px;padding:7px 14px;font-size:12px;font-weight:800;transition:transform .15s}
-.btn-add:active{transform:scale(.96)}
-.btn-back{background:rgba(255,255,255,.12);color:#fff;border-radius:50px;padding:6px 12px;font-size:12px;font-weight:700;border:1.5px solid rgba(255,255,255,.2)}
-
-/* SYNC ROW */
-.sync-row{background:var(--sage4);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--sage3);flex-wrap:wrap;gap:6px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block;margin-right:5px;vertical-align:middle}
-.sync-dot.yellow{background:#D4A843}
-.sync-dot.red{background:var(--rose)}
-.sync-status{font-size:11px;font-weight:700;color:var(--bark2);display:flex;align-items:center}
+.topbar{background:var(--navy);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-title{color:#fff;font-size:20px;font-family:'DM Serif Display',serif}
+.topbar-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500;margin-top:1px}
+.btn-back{background:rgba(255,255,255,.1);color:#fff;border-radius:50px;padding:6px 13px;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.15)}
+.btn-add-top{background:var(--teal);color:#fff;border-radius:50px;padding:7px 15px;font-size:12px;font-weight:700}
+.sync-row{background:var(--navy2);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--teal2);display:inline-block;margin-right:5px;vertical-align:middle}
+.sync-dot.y{background:var(--amber2)}.sync-dot.r{background:var(--rose2)}
+.sync-txt{font-size:11px;font-weight:600;color:rgba(255,255,255,.55)}
 .sync-btns{display:flex;gap:6px}
-.btn-sm{border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none}
-.btn-sage{background:var(--sage);color:#fff}
-.btn-bark{background:var(--bark);color:#fff}
-
-/* LANDING */
-.landing-body{flex:1;padding:16px}
-.dogs-grid{display:flex;flex-direction:column;gap:14px}
-.empty-state{text-align:center;padding:50px 20px}
-.empty-state .paw{font-size:56px;margin-bottom:14px;opacity:.4}
-
-/* DOG CARD */
-.dog-card{background:#fff;border-radius:var(--r2);padding:16px;border:1.5px solid var(--warm);box-shadow:0 2px 12px rgba(61,44,30,.08);cursor:pointer;transition:transform .15s}
-.dog-card:active{transform:scale(.98)}
-.dog-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.dog-avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;border:3px solid var(--warm);flex-shrink:0}
-.dog-avatar-ph{width:54px;height:54px;border-radius:50%;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:3px solid #DDD0BE}
-.dog-name{font-size:17px;font-weight:800;color:var(--bark)}
-.dog-sub{font-size:11px;color:var(--bark3);font-weight:500;margin-top:2px}
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.chip{padding:4px 9px;border-radius:50px;font-size:10px;font-weight:700}
-.chip.ok{background:var(--sage4);color:var(--sage)}
-.chip.warn{background:var(--gold3);color:#8B6010}
-.chip.exp{background:var(--rose3);color:var(--rose)}
-.chip.sky{background:var(--sky3);color:var(--sky)}
-.chip.lav{background:var(--lavender3);color:var(--lavender)}
-
-/* NOTIFICATION BANNER */
-#notif-banner{display:none;background:var(--rose3);padding:10px 16px;border-bottom:1.5px solid var(--rose2)}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(61,44,30,.6);z-index:200;align-items:flex-end;justify-content:center}
+.btn-xs{border-radius:50px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;border:none}
+.btn-teal{background:var(--teal);color:#fff}.btn-navy{background:rgba(255,255,255,.12);color:#fff}
+.alert-banner{padding:10px 16px;border-bottom:1px solid rgba(0,0,0,.06)}
+.alert-banner.red{background:var(--rose3)}.alert-banner.amber{background:var(--amber3)}
+.landing-body{flex:1;padding:14px}
+.members-grid{display:flex;flex-direction:column;gap:12px}
+.member-card{background:var(--surface);border-radius:var(--r2);padding:15px;box-shadow:var(--sh);cursor:pointer;transition:transform .15s;border:1.5px solid transparent}
+.member-card:active{transform:scale(.98)}
+.member-card.pet{border-color:rgba(13,148,136,.18)}
+.member-card.person{border-color:rgba(124,58,237,.18)}
+.mc-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.mc-avatar{width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2.5px solid #E2E8F0}
+.mc-avatar-ph{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2.5px solid #E2E8F0}
+.mc-avatar-ph.pet{background:var(--teal3)}.mc-avatar-ph.person{background:var(--violet3)}
+.mc-name{font-size:16px;font-weight:700;color:var(--ink)}
+.mc-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.mc-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:50px;font-size:10px;font-weight:700;margin-top:3px}
+.mc-badge.person{background:var(--violet3);color:var(--violet)}
+.mc-badge.pet{background:var(--teal3);color:var(--teal)}
+.alert-chips{display:flex;flex-wrap:wrap;gap:5px}
+.achip{padding:4px 9px;border-radius:50px;font-size:10px;font-weight:700}
+.achip.red{background:var(--rose3);color:var(--rose)}.achip.amber{background:var(--amber3);color:var(--amber)}
+.achip.ok{background:var(--sage3);color:var(--sage)}.achip.violet{background:var(--violet3);color:var(--violet)}
+.achip.sky{background:var(--sky3);color:var(--sky)}.achip.teal{background:var(--teal3);color:var(--teal)}
+.more-chip{background:#F1F5F9;color:var(--ink3);padding:4px 9px;border-radius:50px;font-size:10px;font-weight:700}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,15,30,.65);z-index:200;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal{background:var(--cream);border-radius:28px 28px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding-bottom:40px}
-.modal-handle{width:36px;height:4px;background:#DDD0BE;border-radius:4px;margin:11px auto 0}
-.modal-header{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--warm);position:sticky;top:0;background:var(--cream);z-index:10}
-.modal-title{font-size:17px;font-weight:800;color:var(--bark)}
-.btn-close{background:var(--warm);color:var(--bark3);border-radius:50%;width:28px;height:28px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.modal{background:#F8FAFC;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:93vh;overflow-y:auto;padding-bottom:40px}
+.modal-handle{width:36px;height:4px;background:#CBD5E1;border-radius:4px;margin:11px auto 0}
+.modal-header{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #E2E8F0;position:sticky;top:0;background:#F8FAFC;z-index:10}
+.modal-title{font-size:17px;font-weight:700;color:var(--ink)}
+.btn-close{background:#E2E8F0;color:var(--ink3);border-radius:50%;width:28px;height:28px;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .modal-body{padding:18px}
 .form-group{margin-bottom:14px}
-.form-label{font-size:11px;font-weight:700;color:var(--bark3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
+.form-label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-/* RECORD TABS */
 .rtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
-.rtab{padding:7px 12px;border-radius:50px;font-size:12px;font-weight:700;background:var(--warm);color:var(--bark3);cursor:pointer;border:none;transition:all .15s}
-.rtab.active{background:var(--bark);color:#fff}
-
-/* DOG PAGE */
-.dog-page-header{background:var(--bark);padding:14px 16px 18px;color:#fff}
-.dog-pg-avatar{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;flex-shrink:0}
-.dog-pg-avatar-ph{width:64px;height:64px;border-radius:50%;background:var(--warm);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
-.dog-pg-name{font-size:22px;color:#fff}
-.dog-pg-sub{font-size:12px;color:var(--bark3);margin-top:2px}
-.section-card{background:#fff;border-radius:var(--r2);border:1.5px solid var(--warm);padding:14px 16px;margin-bottom:12px}
-.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--bark3);margin-bottom:10px}
-.rec-item{padding:10px 0;border-bottom:1px solid var(--warm);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.rtab{padding:7px 11px;border-radius:50px;font-size:12px;font-weight:700;background:#E2E8F0;color:var(--ink3);cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.rtab.active{background:var(--navy);color:#fff}
+.type-select-row{display:flex;gap:10px;margin-bottom:16px}
+.type-opt{flex:1;border:2px solid #E2E8F0;border-radius:var(--r2);padding:16px 10px;text-align:center;cursor:pointer;transition:all .15s;background:#fff}
+.type-opt.selected{border-color:var(--navy);background:var(--navy)}
+.type-opt .to-ico{font-size:30px;display:block;margin-bottom:6px}
+.type-opt .to-lbl{font-size:13px;font-weight:700;color:var(--ink)}
+.type-opt.selected .to-lbl{color:#fff}
+.detail-header{background:var(--navy);padding:14px 16px 20px}
+.dh-avatar{width:62px;height:62px;border-radius:50%;border:3px solid rgba(255,255,255,.25);object-fit:cover;flex-shrink:0}
+.dh-avatar-ph{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:3px solid rgba(255,255,255,.25)}
+.dh-name{font-size:22px;color:#fff;font-family:'DM Serif Display',serif}
+.dh-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:2px}
+.section-card{background:var(--surface);border-radius:var(--r2);border:1.5px solid #E2E8F0;padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.rec-item{padding:10px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .rec-item:last-child{border-bottom:none;padding-bottom:0}
-.rec-name{font-size:13px;font-weight:700;color:var(--bark)}
-.rec-meta{font-size:11px;color:var(--bark3);margin-top:1px}
-.date-lbl{font-size:9px;color:var(--bark3);font-weight:700;text-transform:uppercase}
-.date-val{font-size:12px;font-weight:700;color:var(--bark)}
+.rec-name{font-size:13px;font-weight:700;color:var(--ink)}
+.rec-meta{font-size:11px;color:var(--ink3);margin-top:2px;line-height:1.4}
+.date-lbl{font-size:9px;color:var(--ink3);font-weight:700;text-transform:uppercase}
+.date-val{font-size:12px;font-weight:700;color:var(--ink)}
 .date-next{font-size:10px;font-weight:700;margin-top:3px}
-.date-next.ok{color:var(--sage)}
-.date-next.warn{color:#8B6010}
-.date-next.exp{color:var(--rose)}
-
-/* FAB */
-.fab{position:fixed;bottom:24px;right:16px;width:54px;height:54px;border-radius:50%;background:var(--bark);color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(61,44,30,.35);z-index:50;border:none;cursor:pointer;transition:transform .15s}
+.date-next.ok{color:var(--sage)}.date-next.warn{color:var(--amber)}.date-next.exp{color:var(--rose)}
+.fab{position:fixed;bottom:24px;right:16px;width:54px;height:54px;border-radius:50%;background:var(--navy);color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(26,41,66,.4);z-index:50;border:none;cursor:pointer;transition:transform .15s}
 .fab:active{transform:scale(.93)}
-
-/* VET CARDS */
-.vet-card{background:var(--sage4);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;position:relative}
-.vet-name{font-size:13px;font-weight:800;color:var(--sage)}
-.vet-info{font-size:11px;color:var(--bark3);margin-top:2px}
-.primary-badge{background:var(--gold3);color:#8B6010;font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:5px}
-.btn-rm{position:absolute;top:8px;right:8px;background:rgba(196,98,106,.12);color:var(--rose);border-radius:50%;width:22px;height:22px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
-
-/* NOTES */
-.note-item{background:var(--gold3);border-radius:var(--r);padding:11px 13px;margin-bottom:7px}
-.note-text{font-size:12px;color:var(--bark);line-height:1.5}
-.note-date{font-size:10px;color:#8B6010;margin-top:3px;font-weight:600}
+.vital-latest{background:var(--navy);border-radius:var(--r2);padding:14px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vital-box{text-align:center;padding:6px}
+.vital-val{font-size:20px;font-weight:700;color:#fff;font-family:'DM Serif Display',serif}
+.vital-lbl{font-size:9px;color:rgba(255,255,255,.45);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+.vital-item{padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between}
+.vital-item:last-child{border-bottom:none}
+.contact-card{background:#F8FAFC;border-radius:var(--r);padding:11px 13px;margin-bottom:8px;position:relative;border:1.5px solid #E2E8F0}
+.contact-name{font-size:13px;font-weight:700;color:var(--navy)}
+.contact-info{font-size:11px;color:var(--ink3);margin-top:2px}
+.primary-badge{background:var(--amber3);color:var(--amber);font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:5px}
+.btn-rm{position:absolute;top:8px;right:8px;background:var(--rose3);color:var(--rose);border-radius:50%;width:22px;height:22px;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.note-item{background:var(--amber3);border-radius:var(--r);padding:10px 13px;margin-bottom:7px}
+.note-text{font-size:12px;color:var(--ink);line-height:1.5}
+.note-date{font-size:10px;color:var(--amber);margin-top:3px;font-weight:600}
 .note-row{display:flex;gap:7px;margin-top:8px}
 .note-row input{flex:1;font-size:13px}
-.btn-send{background:var(--bark);color:#fff;border-radius:var(--r);padding:9px 14px;font-size:13px;font-weight:700;flex-shrink:0;cursor:pointer;border:none}
-
-/* IMAGE UPLOAD */
-.img-upload{border:2px dashed #DDD0BE;border-radius:var(--r);padding:14px;text-align:center;cursor:pointer}
-.img-preview{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
-.img-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:2px solid var(--warm)}
-
-/* SETTINGS */
-.settings-section{background:#fff;border-radius:var(--r2);border:1.5px solid var(--warm);padding:14px 16px;margin-bottom:12px}
-.settings-title{font-size:14px;font-weight:800;color:var(--bark);margin-bottom:4px}
-.settings-sub{font-size:11px;color:var(--bark3);line-height:1.6;margin-bottom:12px}
-.info-box{background:var(--sky3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--sky);line-height:1.6;margin-bottom:12px}
-.warn-box{background:var(--gold3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:#8B6010;line-height:1.5;margin-bottom:12px}
-.success-box{background:var(--sage4);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--sage);line-height:1.5;margin-bottom:12px}
-.btn-full{border-radius:var(--r);padding:13px;font-size:14px;font-weight:800;width:100%;margin-top:6px;cursor:pointer;border:none}
-
-/* MISC */
-.sep{font-size:12px;font-weight:700;color:var(--bark3);margin:14px 0 7px;display:flex;align-items:center;gap:7px}
-.sep::after{content:'';flex:1;height:1px;background:var(--warm)}
-.no-rec{text-align:center;padding:20px 0;color:var(--bark3);font-size:12px}
-.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:50px;font-size:10px;font-weight:700}
-.tag.active{background:var(--sage4);color:var(--sage)}
-.tag.done{background:var(--warm);color:var(--bark3)}
-/* DOCUMENTS */
-.doc-card{background:var(--lavender3);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;position:relative}
-.doc-icon{font-size:20px;flex-shrink:0;display:inline-block;margin-right:6px;vertical-align:middle}
-.doc-title{font-size:13px;font-weight:800;color:var(--lavender);display:inline;vertical-align:middle}
-.doc-note{font-size:11px;color:var(--bark3);margin-top:4px;line-height:1.4}
-.doc-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
-.doc-file-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:2px solid var(--lavender2);cursor:pointer}
-.doc-file-link{display:inline-flex;align-items:center;gap:4px;background:#fff;color:var(--lavender);border-radius:6px;padding:5px 9px;font-size:10px;font-weight:700;text-decoration:none;border:1.5px solid var(--lavender2)}
+.btn-send{background:var(--navy);color:#fff;border-radius:var(--r);padding:9px 14px;font-size:13px;font-weight:700;flex-shrink:0;cursor:pointer;border:none}
+.doc-card{background:var(--violet3);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;position:relative}
+.doc-title{font-size:13px;font-weight:700;color:var(--violet)}
+.doc-note{font-size:11px;color:var(--ink3);margin-top:2px;line-height:1.4}
+.doc-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;align-items:center}
+.doc-file-thumb{width:50px;height:50px;border-radius:8px;object-fit:cover;border:2px solid var(--violet2);cursor:pointer}
+.doc-file-link{display:inline-flex;align-items:center;gap:4px;background:#fff;color:var(--violet);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;text-decoration:none;border:1.5px solid var(--violet2)}
 .upload-row{display:flex;gap:8px;margin-top:6px}
-.upload-btn{flex:1;border:2px dashed #DDD0BE;border-radius:var(--r);padding:11px 6px;text-align:center;cursor:pointer;background:#fff}
+.upload-btn{flex:1;border:2px dashed #CBD5E1;border-radius:var(--r);padding:11px 6px;text-align:center;cursor:pointer;background:#fff}
 .upload-btn .u-ico{font-size:18px;display:block;margin-bottom:2px}
-.upload-btn .u-lbl{font-size:10px;color:var(--bark3);font-weight:700}
+.upload-btn .u-lbl{font-size:10px;color:var(--ink3);font-weight:700}
+.img-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.img-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:2px solid #E2E8F0}
+.file-chip{display:inline-flex;align-items:center;gap:4px;background:var(--sky3);color:var(--sky);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:700}
+.settings-section{background:var(--surface);border-radius:var(--r2);border:1.5px solid #E2E8F0;padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
+.settings-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.settings-sub{font-size:11px;color:var(--ink3);line-height:1.6;margin-bottom:12px}
+.info-box{background:var(--sky3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--sky);line-height:1.6;margin-bottom:12px}
+.warn-box{background:var(--amber3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--amber);line-height:1.5;margin-bottom:10px}
+.success-box{background:var(--sage3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--sage);line-height:1.5;margin-bottom:10px}
+.btn-full{border-radius:var(--r);padding:13px;font-size:14px;font-weight:700;width:100%;margin-top:6px;cursor:pointer;border:none}
+.sep{font-size:11px;font-weight:700;color:var(--ink3);margin:16px 0 8px;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.5px}
+.sep::after{content:'';flex:1;height:1px;background:#E2E8F0}
+.no-rec{text-align:center;padding:20px 0;color:var(--ink3);font-size:12px}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:50px;font-size:10px;font-weight:700}
+.tag.active{background:var(--sage3);color:var(--sage)}.tag.done{background:#F1F5F9;color:var(--ink3)}.tag.refill{background:var(--amber3);color:var(--amber)}
 </style>
 </head>
 <body>
 
-<!-- ==================== LANDING SCREEN ==================== -->
+<!-- LANDING -->
 <div class="screen active" id="screen-landing">
   <div class="topbar">
-    <div><h1>🐾 PawCare</h1><div class="sub">Pet Health Tracker</div></div>
-    <button class="btn-add" onclick="openAddDog()">+ Add Pet</button>
+    <div><div class="topbar-title">MediTrack</div><div class="topbar-sub">Family Health Manager</div></div>
+    <button class="btn-add-top" onclick="openAddMember()">+ Add</button>
   </div>
   <div class="sync-row">
-    <div class="sync-status"><span class="sync-dot yellow" id="sync-dot"></span><span id="sync-status-txt">Checking sync...</span></div>
-    <div class="sync-btns">
-      <button class="btn-sm btn-sage" onclick="manualSync()">⟳ Sync</button>
-      <button class="btn-sm btn-bark" onclick="showSettings()">⚙ Setup</button>
-    </div>
+    <div style="display:flex;align-items:center"><span class="sync-dot y" id="sync-dot"></span><span class="sync-txt" id="sync-status-txt">Loading...</span></div>
+    <div class="sync-btns"><button class="btn-xs btn-teal" onclick="manualSync()">⟳ Sync</button><button class="btn-xs btn-navy" onclick="showSettings()">⚙ Setup</button></div>
   </div>
-  <div id="notif-banner"></div>
+  <div id="alert-banner" style="display:none" class="alert-banner amber"></div>
   <div class="landing-body">
-    <div id="dogs-grid" class="dogs-grid"></div>
-    <div id="empty-state" class="empty-state" style="display:none">
-      <div class="paw">🐶</div>
-      <h2>No pets yet</h2>
-      <p style="color:var(--bark3);font-size:13px;margin-top:8px">Tap <strong>+ Add Pet</strong> to create your first pet profile.</p>
+    <div id="members-grid" class="members-grid"></div>
+    <div id="empty-state" style="display:none;text-align:center;padding:60px 20px">
+      <div style="font-size:52px;margin-bottom:14px;opacity:.3">👨‍👩‍👧</div>
+      <h2 style="font-size:22px;margin-bottom:8px">No members yet</h2>
+      <p style="color:var(--ink3);font-size:13px">Tap <strong>+ Add</strong> to add a family member or pet</p>
     </div>
   </div>
 </div>
 
-<!-- ==================== DOG DETAIL SCREEN ==================== -->
-<div class="screen" id="screen-dog">
+<!-- DETAIL -->
+<div class="screen" id="screen-detail">
   <div class="topbar">
     <button class="btn-back" onclick="showLanding()">← Back</button>
-    <div style="font-size:11px;color:var(--bark3);font-weight:600">Health Records</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:600">Health Records</div>
   </div>
-  <div id="dog-page-content" style="flex:1;overflow-y:auto;background:var(--cream)"></div>
+  <div id="detail-content" style="flex:1;overflow-y:auto;background:var(--bg)"></div>
   <button class="fab" onclick="openAddRecord()">＋</button>
 </div>
 
-<!-- ==================== SETTINGS SCREEN ==================== -->
+<!-- SETTINGS -->
 <div class="screen" id="screen-settings">
   <div class="topbar">
     <button class="btn-back" onclick="showLanding()">← Back</button>
-    <div style="font-size:13px;color:var(--bark3);font-weight:700">Settings & Sync</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.4);font-weight:600">Settings & Sync</div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:16px">
-
     <div class="settings-section">
       <div class="settings-title">🔄 GitHub Gist Auto-Sync</div>
-      <div class="settings-sub">Your data auto-saves to a private GitHub Gist every time you make a change. Anyone with the same token and Gist ID can access the same records from any device.</div>
-      <div class="info-box">
-        <strong>One-time GitHub setup:</strong><br>
-        1. Go to <strong>github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</strong><br>
-        2. Click "Generate new token (classic)"<br>
-        3. Give it a name, tick the <strong>gist</strong> checkbox only<br>
-        4. Copy the token (starts with <code>ghp_</code>) and paste below<br>
-        5. Leave Gist ID blank — it will be created automatically on first save
-      </div>
-      <div class="form-group">
-        <label class="form-label">GitHub Personal Access Token</label>
-        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Gist ID (auto-filled after first sync)</label>
-        <input type="text" id="gh-gist-id" placeholder="Will be created automatically">
-      </div>
+      <div class="settings-sub">Auto-saves to a private GitHub Gist on every change. Share across devices with the same token + Gist ID.</div>
+      <div class="info-box"><strong>Setup:</strong> github.com → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new → tick <strong>gist</strong> only → copy token (ghp_...)</div>
+      <div class="form-group"><label class="form-label">GitHub Personal Access Token</label><input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx"></div>
+      <div class="form-group"><label class="form-label">Gist ID (auto-filled on first sync)</label><input type="text" id="gh-gist-id" placeholder="Leave blank to auto-create"></div>
+      <div class="warn-box" style="font-size:11px">Use <strong>classic token</strong> · tick <strong>gist</strong> scope · no expiry recommended</div>
       <div id="gh-status" style="display:none"></div>
-      <div class="warn-box" style="font-size:11px;margin-bottom:8px">
-        <strong>⚠️ If sync fails, check:</strong><br>
-        • Token expired → generate a new one at github.com<br>
-        • Wrong scope → must have <strong>gist</strong> ticked (not just repo)<br>
-        • Extra spaces in token → paste carefully<br>
-        • Must use <strong>classic token</strong>, not fine-grained
-      </div>
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveGithubSettings()">Save & Test Connection</button>
-      <button class="btn-full" style="background:var(--sage);color:#fff;margin-top:8px" onclick="manualSync()">⟳ Sync Now</button>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveGithubSettings()">Save & Test Connection</button>
+      <button class="btn-full" style="background:var(--teal);color:#fff;margin-top:8px" onclick="manualSync()">⟳ Sync Now</button>
     </div>
-
     <div class="settings-section">
-      <div class="settings-title">📧 Email Reminders via EmailJS</div>
-      <div class="settings-sub">Receive email reminders at 15 days, 7 days, and 1 day before any vaccination or deworming is due. Free — up to 200 emails/month.</div>
-      <div class="info-box">
-        <strong>One-time EmailJS setup (free at emailjs.com):</strong><br>
-        1. Sign up at <strong>emailjs.com</strong> and add a Gmail/Outlook service<br>
-        2. Create an Email Template with subject like "PawCare Reminder" and body using:<br>
-        &nbsp;&nbsp;<code>{{dog_name}}</code> — pet name<br>
-        &nbsp;&nbsp;<code>{{record_name}}</code> — vaccine/medicine name<br>
-        &nbsp;&nbsp;<code>{{due_date}}</code> — due date<br>
-        &nbsp;&nbsp;<code>{{days_left}}</code> — days remaining<br>
-        &nbsp;&nbsp;<code>{{to_email}}</code> — recipient (set as To field)<br>
-        3. Copy your Public Key, Service ID, and Template ID below
-      </div>
-      <div class="form-group">
-        <label class="form-label">Your Email Address (receives reminders)</label>
-        <input type="email" id="notif-email" placeholder="you@example.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">EmailJS Public Key</label>
-        <input type="text" id="ejs-pubkey" placeholder="user_xxxxxxxxxxxxxx">
-      </div>
-      <div class="form-group">
-        <label class="form-label">EmailJS Service ID</label>
-        <input type="text" id="ejs-service" placeholder="service_xxxxxxx">
-      </div>
-      <div class="form-group">
-        <label class="form-label">EmailJS Template ID</label>
-        <input type="text" id="ejs-template" placeholder="template_xxxxxxx">
-      </div>
+      <div class="settings-title">📧 Email Reminders (EmailJS)</div>
+      <div class="settings-sub">Reminders for refills (10d, 7d), appointments (1d before), vaccinations (15d, 7d, 1d). Free up to 200/month.</div>
+      <div class="info-box"><strong>emailjs.com setup:</strong> Add Email Service → Create Template with variables: <code>{{member_name}} {{record_name}} {{due_date}} {{days_left}} {{reminder_type}} {{to_email}}</code></div>
+      <div class="form-group"><label class="form-label">Your Email</label><input type="email" id="notif-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label">EmailJS Public Key</label><input type="text" id="ejs-pubkey" placeholder="user_xxxxxx"></div>
+      <div class="form-group"><label class="form-label">Service ID</label><input type="text" id="ejs-service" placeholder="service_xxxxxx"></div>
+      <div class="form-group"><label class="form-label">Template ID</label><input type="text" id="ejs-template" placeholder="template_xxxxxx"></div>
       <div id="email-status" style="display:none"></div>
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveEmailSettings()">Save Email Settings</button>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveEmailSettings()">Save Email Settings</button>
       <button class="btn-full" style="background:var(--sky);color:#fff;margin-top:8px" onclick="sendTestEmail()">📧 Send Test Email</button>
     </div>
-
     <div class="settings-section">
       <div class="settings-title">🔔 Browser Push Notifications</div>
-      <div class="settings-sub">Get push notifications on your phone when the app is open in the browser. Works best on Android Chrome. For iPhone, use "Add to Home Screen" in Safari first.</div>
-      <div id="push-status-box" class="warn-box">Push notifications not yet enabled.</div>
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="requestPushPermission()">Enable Push Notifications</button>
-      <button class="btn-full" style="background:var(--sky);color:#fff;margin-top:8px" onclick="sendTestPush()">🔔 Send Test Notification</button>
+      <div class="settings-sub">Popup reminders on your device when app is open. Android Chrome works best. iPhone: Add to Home Screen first.</div>
+      <div id="push-status-box" class="warn-box">Not yet enabled.</div>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="requestPushPermission()">Enable Push Notifications</button>
+      <button class="btn-full" style="background:var(--sky);color:#fff;margin-top:8px" onclick="sendTestPush()">🔔 Send Test</button>
     </div>
-
     <div class="settings-section">
-      <div class="settings-title">🔍 Check & Send Due Reminders Now</div>
-      <div class="settings-sub">Manually trigger a check for all pets and send any pending reminders right now.</div>
-      <div id="reminder-check-result" style="font-size:12px;color:var(--bark3);margin-bottom:10px;line-height:1.6"></div>
-      <button class="btn-full" style="background:var(--sage);color:#fff" onclick="checkAndSendReminders(true)">Check All & Send Reminders</button>
+      <div class="settings-title">🔍 Send All Due Reminders Now</div>
+      <div id="reminder-result" style="font-size:12px;color:var(--ink3);margin-bottom:10px;line-height:1.6"></div>
+      <button class="btn-full" style="background:var(--teal);color:#fff" onclick="checkAndSendReminders(true)">Check All & Send Now</button>
     </div>
-
     <div style="height:30px"></div>
   </div>
 </div>
 
-<!-- ==================== MODAL: ADD/EDIT DOG ==================== -->
-<div class="modal-overlay" id="modal-dog">
+<!-- MODAL: ADD TYPE -->
+<div class="modal-overlay" id="modal-add-type">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title" id="modal-dog-title">Add Pet Profile</div>
-      <button class="btn-close" onclick="closeModal('modal-dog')">✕</button>
+    <div class="modal-header"><div class="modal-title">Who are you adding?</div><button class="btn-close" onclick="closeModal('modal-add-type')">✕</button></div>
+    <div class="modal-body">
+      <div class="type-select-row">
+        <div class="type-opt selected" id="type-opt-person" onclick="selectMemberType('person')"><span class="to-ico">👤</span><span class="to-lbl">Person</span></div>
+        <div class="type-opt" id="type-opt-pet" onclick="selectMemberType('pet')"><span class="to-ico">🐾</span><span class="to-lbl">Pet</span></div>
+      </div>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="proceedToProfile()">Continue →</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL: PERSON -->
+<div class="modal-overlay" id="modal-person">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title" id="modal-person-title">Add Person</div><button class="btn-close" onclick="closeModal('modal-person')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Photo</label>
+        <div style="border:2px dashed #CBD5E1;border-radius:var(--r);padding:12px;text-align:center;cursor:pointer;background:#fff" onclick="document.getElementById('person-photo-input').click()">
+          <div style="font-size:22px;margin-bottom:3px">📷</div><div style="font-size:11px;color:var(--ink3)">Tap to upload</div>
+          <input type="file" id="person-photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this,'person')">
+        </div>
+        <div class="img-preview" id="person-photo-preview"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name *</label><input type="text" id="p-name" placeholder="Rajesh Sharma"></div>
+        <div class="form-group"><label class="form-label">Relation *</label>
+          <select id="p-relation"><option value="">Select</option><option>Self</option><option>Mother</option><option>Father</option><option>Spouse</option><option>Son</option><option>Daughter</option><option>Brother</option><option>Sister</option><option>Grandfather</option><option>Grandmother</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" id="p-dob"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select id="p-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Blood Group</label><input type="text" id="p-blood" placeholder="B+"></div>
+        <div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" id="p-weight" placeholder="65" step="0.1"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Known Allergies</label><input type="text" id="p-allergies" placeholder="Penicillin, dust mites"></div>
+      <div class="form-group"><label class="form-label">Chronic Conditions</label><input type="text" id="p-conditions" placeholder="Diabetes Type 2, Hypertension"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Insurance Provider</label><input type="text" id="p-insurance" placeholder="Star Health"></div>
+        <div class="form-group"><label class="form-label">Policy Number</label><input type="text" id="p-policy" placeholder="Optional"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Emergency Contact</label><input type="text" id="p-emergency" placeholder="Name — Phone"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea id="p-notes" placeholder="Any additional info..."></textarea></div>
+      <div class="sep">Doctor Contacts</div>
+      <div id="person-contact-list"></div>
+      <button style="background:var(--violet3);color:var(--violet);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openAddContact('doctor')">+ Add Doctor</button>
+      <div class="sep">Documents</div>
+      <div id="person-doc-list"></div>
+      <button style="background:var(--violet3);color:var(--violet);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openAddDoc(false)">+ Add Document</button>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveMember('person')">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PET -->
+<div class="modal-overlay" id="modal-pet">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title" id="modal-pet-title">Add Pet</div><button class="btn-close" onclick="closeModal('modal-pet')">✕</button></div>
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Pet Photo</label>
-        <div class="img-upload" onclick="document.getElementById('dog-photo-input').click()">
-          <div style="font-size:24px;margin-bottom:3px">📷</div>
-          <div style="font-size:12px;color:var(--bark3)">Tap to upload a photo</div>
-          <input type="file" id="dog-photo-input" accept="image/*" style="display:none" onchange="handleDogPhoto(this)">
+        <div style="border:2px dashed #CBD5E1;border-radius:var(--r);padding:12px;text-align:center;cursor:pointer;background:#fff" onclick="document.getElementById('pet-photo-input').click()">
+          <div style="font-size:22px;margin-bottom:3px">📷</div><div style="font-size:11px;color:var(--ink3)">Tap to upload</div>
+          <input type="file" id="pet-photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this,'pet')">
         </div>
-        <div class="img-preview" id="dog-photo-preview"></div>
+        <div class="img-preview" id="pet-photo-preview"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Dog Name *</label><input type="text" id="dog-name" placeholder="Buddy"></div>
-        <div class="form-group"><label class="form-label">Breed</label><input type="text" id="dog-breed" placeholder="Golden Retriever"></div>
+        <div class="form-group"><label class="form-label">Pet Name *</label><input type="text" id="pt-name" placeholder="Buddy"></div>
+        <div class="form-group"><label class="form-label">Species</label><select id="pt-species"><option>Dog</option><option>Cat</option><option>Bird</option><option>Rabbit</option><option>Other</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" id="dog-dob"></div>
-        <div class="form-group"><label class="form-label">Gender</label>
-          <select id="dog-gender"><option value="">Select</option><option>Male</option><option>Female</option></select>
-        </div>
+        <div class="form-group"><label class="form-label">Breed</label><input type="text" id="pt-breed" placeholder="Labrador"></div>
+        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" id="pt-dob"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" id="dog-weight" placeholder="12.5" step="0.1"></div>
-        <div class="form-group"><label class="form-label">Color / Markings</label><input type="text" id="dog-color" placeholder="Golden"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select id="pt-gender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" id="pt-weight" placeholder="12" step="0.1"></div>
       </div>
-      <div class="form-group"><label class="form-label">Microchip / Tag #</label><input type="text" id="dog-microchip" placeholder="Optional"></div>
-      <div class="form-group"><label class="form-label">Known Allergies</label><input type="text" id="dog-allergies" placeholder="e.g. chicken, dust mites"></div>
-      <div class="form-group"><label class="form-label">Blood Type</label><input type="text" id="dog-blood" placeholder="e.g. DEA 1.1+"></div>
-      <div class="form-group"><label class="form-label">General Notes</label><textarea id="dog-notes" placeholder="Any additional info about your pet..."></textarea></div>
-
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Blood Type</label><input type="text" id="pt-blood" placeholder="DEA 1.1+"></div>
+        <div class="form-group"><label class="form-label">Microchip #</label><input type="text" id="pt-microchip" placeholder="Optional"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Known Allergies</label><input type="text" id="pt-allergies" placeholder="chicken, dust"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea id="pt-notes" placeholder="Any additional info..."></textarea></div>
       <div class="sep">Veterinary Contacts</div>
-      <div id="vet-list"></div>
-      <button style="background:var(--sage4);color:var(--sage);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openModal('modal-vet')">+ Add Veterinary</button>
-
-      <div class="sep">Pet Documentation</div>
-      <div style="font-size:11px;color:var(--bark3);margin-bottom:10px;line-height:1.5">Registration papers, insurance, import certificates, adoption papers, etc.</div>
-      <div id="dog-docs-list"></div>
-      <button style="background:var(--lavender3);color:var(--lavender);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openAddDoc()">+ Add Document</button>
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveDog()">Save Pet Profile</button>
+      <div id="pet-contact-list"></div>
+      <button style="background:var(--teal3);color:var(--teal);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openAddContact('vet')">+ Add Veterinary</button>
+      <div class="sep">Documents</div>
+      <div id="pet-doc-list"></div>
+      <button style="background:var(--violet3);color:var(--violet);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openAddDoc(false)">+ Add Document</button>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveMember('pet')">Save Pet Profile</button>
     </div>
   </div>
 </div>
 
-<!-- ==================== MODAL: ADD VET ==================== -->
-<div class="modal-overlay" id="modal-vet" style="z-index:300">
+<!-- MODAL: CONTACT -->
+<div class="modal-overlay" id="modal-contact" style="z-index:300">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title">Add Veterinary</div>
-      <button class="btn-close" onclick="closeModal('modal-vet')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="modal-contact-title">Add Doctor</div><button class="btn-close" onclick="closeModal('modal-contact')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group"><label class="form-label">Vet Name *</label><input type="text" id="vet-name" placeholder="Dr. Sarah Johnson"></div>
-      <div class="form-group"><label class="form-label">Clinic / Hospital</label><input type="text" id="vet-clinic" placeholder="City Animal Hospital"></div>
-      <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" id="vet-phone" placeholder="+1 555 000 0000"></div>
-      <div class="form-group"><label class="form-label">Address</label><textarea id="vet-address" placeholder="123 Main St, City, State" style="min-height:55px"></textarea></div>
-      <div class="form-group"><label class="form-label">Email</label><input type="email" id="vet-email" placeholder="vet@clinic.com"></div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <input type="checkbox" id="vet-primary" style="width:auto;transform:scale(1.3)">
-        <label for="vet-primary" style="font-size:14px;font-weight:600;cursor:pointer">Set as Primary Vet</label>
-      </div>
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveVet()">Add Veterinary</button>
+      <div class="form-group"><label class="form-label">Name *</label><input type="text" id="c-name" placeholder="Dr. Priya Sharma"></div>
+      <div class="form-group"><label class="form-label">Specialisation / Clinic</label><input type="text" id="c-clinic" placeholder="Cardiologist — City Hospital"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="c-phone" placeholder="+91 98765 43210"></div>
+      <div class="form-group"><label class="form-label">Address</label><textarea id="c-address" placeholder="Clinic address" style="min-height:55px"></textarea></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="c-email" placeholder="doctor@clinic.com"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><input type="checkbox" id="c-primary" style="width:auto;transform:scale(1.3)"><label for="c-primary" style="font-size:14px;font-weight:600;cursor:pointer">Set as Primary</label></div>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveContact()">Add</button>
     </div>
   </div>
 </div>
 
-<!-- ==================== MODAL: ADD HEALTH RECORD ==================== -->
-<div class="modal-overlay" id="modal-record">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title">Add Health Record</div>
-      <button class="btn-close" onclick="closeModal('modal-record')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Record Type</label>
-        <div class="rtabs">
-          <button class="rtab active" data-type="vaccine" onclick="setRecType('vaccine',this)">💉 Vaccination</button>
-          <button class="rtab" data-type="deworm" onclick="setRecType('deworm',this)">💊 Deworming</button>
-          <button class="rtab" data-type="meds" onclick="setRecType('meds',this)">🩺 Medication</button>
-          <button class="rtab" data-type="other" onclick="setRecType('other',this)">📋 Other</button>
-        </div>
-      </div>
-
-      <!-- VACCINATION FIELDS -->
-      <div id="fields-vaccine">
-        <div class="form-group"><label class="form-label">Vaccine Name *</label><input type="text" id="rv-name" placeholder="e.g. Rabies, DHPP, Bordetella"></div>
-        <div class="form-group"><label class="form-label">Vaccine Category</label>
-          <select id="rv-vtype"><option value="Core">Core (Rabies, DHPP)</option><option value="Lifestyle">Lifestyle (Bordetella, Leptospira)</option><option value="Other">Other</option></select>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rv-date" onchange="autoNextV()"></div>
-          <div class="form-group"><label class="form-label">Lot / Batch #</label><input type="text" id="rv-lot" placeholder="Optional"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Next Due (default: 1 yr)</label><input type="date" id="rv-next"></div>
-          <div class="form-group"><label class="form-label">Administered By</label><input type="text" id="rv-vet" placeholder="Dr. Name"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Notes</label><textarea id="rv-notes" placeholder="Reaction, brand, clinic name..."></textarea></div>
-      </div>
-
-      <!-- DEWORMING FIELDS -->
-      <div id="fields-deworm" style="display:none">
-        <div class="form-group"><label class="form-label">Medicine Name *</label><input type="text" id="rd-name" placeholder="e.g. Drontal, Panacur, Milbemax"></div>
-        <div class="form-group"><label class="form-label">Deworming Type</label>
-          <select id="rd-dtype"><option>Roundworm</option><option>Tapeworm</option><option>Hookworm</option><option>Whipworm</option><option>Broad Spectrum</option></select>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rd-date" onchange="autoNextD()"></div>
-          <div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rd-dose" placeholder="e.g. 1 tablet"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Next Due (default: 3 months)</label><input type="date" id="rd-next"></div>
-        <div class="form-group"><label class="form-label">Notes</label><textarea id="rd-notes" placeholder="Any notes..."></textarea></div>
-      </div>
-
-      <!-- MEDICATION FIELDS -->
-      <div id="fields-meds" style="display:none">
-        <div class="form-group"><label class="form-label">Medication Name *</label><input type="text" id="rm-name" placeholder="e.g. Apoquel, Bravecto, Simparica"></div>
-        <div class="form-group"><label class="form-label">Condition / Purpose</label><input type="text" id="rm-cond" placeholder="e.g. Allergies, Heartworm prevention"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Start Date *</label><input type="date" id="rm-start"></div>
-          <div class="form-group"><label class="form-label">End Date</label><input type="date" id="rm-end"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rm-dose" placeholder="e.g. 16mg once daily"></div>
-          <div class="form-group"><label class="form-label">Prescribed By</label><input type="text" id="rm-vet" placeholder="Dr. Name"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Notes</label><textarea id="rm-notes" placeholder="Side effects, refill instructions..."></textarea></div>
-      </div>
-
-      <!-- OTHER FIELDS -->
-      <div id="fields-other" style="display:none">
-        <div class="form-group"><label class="form-label">Title *</label><input type="text" id="ro-title" placeholder="e.g. Annual Checkup, X-Ray, Dental Cleaning"></div>
-        <div class="form-group"><label class="form-label">Date *</label><input type="date" id="ro-date"></div>
-        <div class="form-group"><label class="form-label">Provider / Clinic</label><input type="text" id="ro-vet" placeholder="Dr. Name / Clinic"></div>
-        <div class="form-group"><label class="form-label">Notes / Findings</label><textarea id="ro-notes" placeholder="What happened, test results, next steps..."></textarea></div>
-      </div>
-
-      <!-- FILE + IMAGE ATTACHMENT -->
-      <div class="form-group">
-        <label class="form-label">📎 Attach Files</label>
-        <div class="upload-row">
-          <div class="upload-btn" onclick="document.getElementById('rec-img-input').click()">
-            <span class="u-ico">🖼</span>
-            <span class="u-lbl">Add Images</span>
-            <input type="file" id="rec-img-input" accept="image/*" multiple style="display:none" onchange="handleRecImgs(this)">
-          </div>
-          <div class="upload-btn" onclick="document.getElementById('rec-file-input').click()">
-            <span class="u-ico">📄</span>
-            <span class="u-lbl">Add PDF / File</span>
-            <input type="file" id="rec-file-input" accept=".pdf,.doc,.docx,.txt,application/*" multiple style="display:none" onchange="handleRecFiles(this)">
-          </div>
-        </div>
-        <div class="img-preview" id="rec-img-preview"></div>
-        <div id="rec-file-list" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
-      </div>
-
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveRecord()">Save Record</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== MODAL: ADD DOCUMENT ==================== -->
+<!-- MODAL: DOCUMENT -->
 <div class="modal-overlay" id="modal-doc" style="z-index:300">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title">Add Document</div>
-      <button class="btn-close" onclick="closeModal('modal-doc')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Add Document</div><button class="btn-close" onclick="closeModal('modal-doc')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Document Type *</label>
-        <select id="doc-type">
-          <option value="">Select type...</option>
-          <option>Registration Certificate</option>
-          <option>Insurance Policy</option>
-          <option>Import / Export Certificate</option>
-          <option>Adoption Papers</option>
-          <option>Pedigree Certificate</option>
-          <option>Passport / Travel Document</option>
-          <option>Ownership Transfer</option>
-          <option>Other</option>
-        </select>
+      <div class="form-group"><label class="form-label">Document Type</label>
+        <select id="doc-type"><option value="">Select type...</option><option>Registration Certificate</option><option>Insurance Card / Policy</option><option>ID Proof</option><option>Medical Report</option><option>Prescription</option><option>Lab Report</option><option>Discharge Summary</option><option>Import / Export Certificate</option><option>Adoption Papers</option><option>Pedigree Certificate</option><option>Other</option></select>
       </div>
+      <div class="form-group"><label class="form-label">Title</label><input type="text" id="doc-title" placeholder="e.g. Star Health Policy 2024"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea id="doc-notes" placeholder="Reference number, expiry, details..."></textarea></div>
       <div class="form-group">
-        <label class="form-label">Document Title / Name</label>
-        <input type="text" id="doc-title" placeholder="e.g. Kennel Club Registration 2023">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <textarea id="doc-notes" placeholder="What is this document for? Any additional info, reference numbers, expiry dates..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">📎 Attach Files</label>
+        <label class="form-label">Attach Files</label>
         <div class="upload-row">
-          <div class="upload-btn" onclick="document.getElementById('doc-img-input').click()">
-            <span class="u-ico">🖼</span>
-            <span class="u-lbl">Add Images</span>
-            <input type="file" id="doc-img-input" accept="image/*" multiple style="display:none" onchange="handleDocImgs(this)">
-          </div>
-          <div class="upload-btn" onclick="document.getElementById('doc-file-input').click()">
-            <span class="u-ico">📄</span>
-            <span class="u-lbl">Add PDF / File</span>
-            <input type="file" id="doc-file-input" accept=".pdf,.doc,.docx,.txt,application/*" multiple style="display:none" onchange="handleDocFiles(this)">
-          </div>
+          <div class="upload-btn" onclick="document.getElementById('doc-img-inp').click()"><span class="u-ico">🖼</span><span class="u-lbl">Images</span><input type="file" id="doc-img-inp" accept="image/*" multiple style="display:none" onchange="handleDocImgs(this)"></div>
+          <div class="upload-btn" onclick="document.getElementById('doc-file-inp').click()"><span class="u-ico">📄</span><span class="u-lbl">PDF / File</span><input type="file" id="doc-file-inp" accept=".pdf,.doc,.docx,.txt,application/*" multiple style="display:none" onchange="handleDocFiles(this)"></div>
         </div>
-        <div class="img-preview" id="doc-img-preview" style="margin-top:6px"></div>
-        <div id="doc-file-list" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
+        <div class="img-preview" id="doc-img-preview"></div>
+        <div id="doc-file-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
       </div>
-      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveDoc()">Save Document</button>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveDoc()">Save Document</button>
     </div>
   </div>
 </div>
 
-<!-- ==================== JAVASCRIPT ==================== -->
+<!-- MODAL: HEALTH RECORD -->
+<div class="modal-overlay" id="modal-record">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Add Health Record</div><button class="btn-close" onclick="closeModal('modal-record')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Record Type</label><div class="rtabs" id="rec-type-tabs"></div></div>
+      <div id="rec-fields"></div>
+      <div class="form-group">
+        <label class="form-label">Attach Files</label>
+        <div class="upload-row">
+          <div class="upload-btn" onclick="document.getElementById('rec-img-inp').click()"><span class="u-ico">🖼</span><span class="u-lbl">Images</span><input type="file" id="rec-img-inp" accept="image/*" multiple style="display:none" onchange="handleRecImgs(this)"></div>
+          <div class="upload-btn" onclick="document.getElementById('rec-file-inp').click()"><span class="u-ico">📄</span><span class="u-lbl">PDF / File</span><input type="file" id="rec-file-inp" accept=".pdf,.doc,.docx,application/*" multiple style="display:none" onchange="handleRecFiles(this)"></div>
+        </div>
+        <div class="img-preview" id="rec-img-preview"></div>
+        <div id="rec-file-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+      </div>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VITAL -->
+<div class="modal-overlay" id="modal-vital" style="z-index:300">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Log Vitals</div><button class="btn-close" onclick="closeModal('modal-vital')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Date & Time</label><input type="datetime-local" id="v-dt"></div>
+      <div class="sep">Blood Pressure</div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Systolic (mmHg)</label><input type="number" id="v-bpsys" placeholder="120"></div><div class="form-group"><label class="form-label">Diastolic (mmHg)</label><input type="number" id="v-bpdia" placeholder="80"></div></div>
+      <div class="sep">Blood Sugar</div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Reading (mg/dL)</label><input type="number" id="v-sugar" placeholder="100"></div><div class="form-group"><label class="form-label">Type</label><select id="v-stype"><option>Fasting</option><option>Post-meal</option><option>Random</option><option>HbA1c %</option></select></div></div>
+      <div class="sep">Weight & Other</div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" id="v-weight" placeholder="65" step="0.1"></div><div class="form-group"><label class="form-label">Pulse (bpm)</label><input type="number" id="v-pulse" placeholder="72"></div></div>
+      <div class="form-group"><label class="form-label">Temperature (°F)</label><input type="number" id="v-temp" placeholder="98.6" step="0.1"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea id="v-notes" placeholder="Observations, medication taken..."></textarea></div>
+      <button class="btn-full" style="background:var(--navy);color:#fff" onclick="saveVital()">Save Reading</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ============================================================
 // STATE
-// ============================================================
-let S = {
-  dogs: [],
-  settings: {
-    ghToken: '', ghGistId: '',
-    email: '', ejsPubKey: '', ejsService: '', ejsTemplate: '',
-    pushEnabled: false,
-    lastReminderCheck: '',
-    remindersSent: {}
-  }
-};
-let tempVets = [], tempDogPhoto = null, tempRecImgs = [], tempRecFiles = [], currentRecType = 'vaccine';
-let tempDocs = [], tempDocImgs = [], tempDocFiles = [];
-let editDogId = null, currentDogId = null;
+let S={members:[],settings:{ghToken:'',ghGistId:'',email:'',ejsPubKey:'',ejsService:'',ejsTemplate:'',pushEnabled:false,lastReminderCheck:'',remindersSent:{}}};
+let currentMemberId=null,editMemberId=null,selectedMemberType='person';
+let tempContacts=[],tempDocs=[],tempPhoto=null;
+let tempDocImgs=[],tempDocFiles=[],docFromDetail=false;
+let tempRecImgs=[],tempRecFiles=[],currentRecType=null;
+let activeContactType='doctor';
 
-// ============================================================
 // UTILS
-// ============================================================
-function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
-function today() { return new Date().toISOString().split('T')[0]; }
-function fmtDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d + 'T12:00:00');
-  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-function calcAge(dob) {
-  if (!dob) return '';
-  const d = new Date(dob + 'T12:00:00'), n = new Date();
-  let y = n.getFullYear() - d.getFullYear(), m = n.getMonth() - d.getMonth();
-  if (m < 0) { y--; m += 12; }
-  if (y > 0) return `${y}yr${y !== 1 ? 's' : ''} ${m > 0 ? m + 'mo' : ''}`;
-  return `${m}mo`;
-}
-function daysUntil(ds) {
-  if (!ds) return null;
-  const d = new Date(ds + 'T12:00:00'), n = new Date();
-  n.setHours(0, 0, 0, 0);
-  return Math.round((d - n) / 86400000);
-}
-function addMonths(ds, mo) {
-  const d = new Date(ds + 'T12:00:00');
-  d.setMonth(d.getMonth() + mo);
-  return d.toISOString().split('T')[0];
-}
-function addYears(ds, yr) {
-  const d = new Date(ds + 'T12:00:00');
-  d.setFullYear(d.getFullYear() + yr);
-  return d.toISOString().split('T')[0];
-}
-function getDogEmoji(b = '') {
-  const bl = b.toLowerCase();
-  if (bl.includes('golden') || bl.includes('retriever')) return '🦮';
-  if (bl.includes('poodle')) return '🐩';
-  if (bl.includes('husky') || bl.includes('malamute')) return '🐺';
-  if (bl.includes('bulldog') || bl.includes('pug')) return '🐶';
-  return '🐕';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+const today=()=>new Date().toISOString().split('T')[0];
+function fmtDate(d){if(!d)return'—';const dt=new Date(d.includes('T')?d:d+'T12:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtDT(d){if(!d)return'—';return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function calcAge(dob){if(!dob)return'';const d=new Date(dob+'T12:00:00'),n=new Date();let y=n.getFullYear()-d.getFullYear(),m=n.getMonth()-d.getMonth();if(m<0){y--;m+=12;}if(y>0)return`${y}yr${y!==1?'s':''} ${m>0?m+'mo':''}`;return`${m}mo`;}
+function daysUntil(ds){if(!ds)return null;const d=new Date(ds.includes('T')?ds:ds+'T12:00:00'),n=new Date();n.setHours(0,0,0,0);return Math.round((d-n)/86400000);}
+function addMonths(ds,mo){const d=new Date(ds+'T12:00:00');d.setMonth(d.getMonth()+mo);return d.toISOString().split('T')[0];}
+function addYears(ds,yr){const d=new Date(ds+'T12:00:00');d.setFullYear(d.getFullYear()+yr);return d.toISOString().split('T')[0];}
+function addDays(ds,dy){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+dy);return d.toISOString().split('T')[0];}
+function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function getMemberEmoji(m){
+  if(m.memberType==='pet'){const s=(m.species||'').toLowerCase();if(s==='cat')return'🐱';if(s==='bird')return'🐦';if(s==='rabbit')return'🐰';return'🐶';}
+  const r=(m.relation||'').toLowerCase();
+  if(r==='self')return'🧑';if(r.includes('mother')||r.includes('grand'+'mother'))return'👩';if(r.includes('father')||r.includes('grand'+'father'))return'👨';
+  if(r==='spouse')return'💑';if(r==='son'||r==='brother')return'👦';if(r==='daughter'||r==='sister')return'👧';return'👤';
 }
 
-// ============================================================
-// PERSISTENCE — localStorage
-// ============================================================
-function loadState() {
-  try {
-    const s = localStorage.getItem('pawcare_v2');
-    if (s) {
-      const p = JSON.parse(s);
-      S.dogs = p.dogs || [];
-      if (p.settings) S.settings = Object.assign(S.settings, p.settings);
-    }
-  } catch (e) { console.error('Load error', e); }
-  restoreSettingsUI();
-}
-function saveLocal() {
-  localStorage.setItem('pawcare_v2', JSON.stringify(S));
-}
+// PERSIST
+function loadState(){try{const s=localStorage.getItem('meditrack_v1');if(s){const p=JSON.parse(s);S.members=p.members||[];if(p.settings)S.settings=Object.assign(S.settings,p.settings);}}catch(e){}restoreSettingsUI();}
+function saveLocal(){localStorage.setItem('meditrack_v1',JSON.stringify(S));}
+function restoreSettingsUI(){const st=S.settings;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};sv('gh-token',st.ghToken);sv('gh-gist-id',st.ghGistId);sv('notif-email',st.email);sv('ejs-pubkey',st.ejsPubKey);sv('ejs-service',st.ejsService);sv('ejs-template',st.ejsTemplate);updatePushStatusUI();}
 
-function restoreSettingsUI() {
-  const st = S.settings;
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-  set('gh-token', st.ghToken);
-  set('gh-gist-id', st.ghGistId);
-  set('notif-email', st.email);
-  set('ejs-pubkey', st.ejsPubKey);
-  set('ejs-service', st.ejsService);
-  set('ejs-template', st.ejsTemplate);
-  updatePushStatusUI();
+// SCREENS / MODALS
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showLanding(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-landing').classList.add('active');renderLanding();checkAndSendReminders(false);}
+function showSettings(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-settings').classList.add('active');restoreSettingsUI();}
+function showDetail(id){currentMemberId=id;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-detail').classList.add('active');renderDetail();}
+
+// ADD MEMBER FLOW
+function openAddMember(){editMemberId=null;selectedMemberType='person';document.getElementById('type-opt-person').classList.add('selected');document.getElementById('type-opt-pet').classList.remove('selected');openModal('modal-add-type');}
+function selectMemberType(t){selectedMemberType=t;document.getElementById('type-opt-person').classList.toggle('selected',t==='person');document.getElementById('type-opt-pet').classList.toggle('selected',t==='pet');}
+function proceedToProfile(){closeModal('modal-add-type');tempContacts=[];tempDocs=[];tempPhoto=null;if(selectedMemberType==='person'){clearPersonForm();document.getElementById('modal-person-title').textContent='Add Person';openModal('modal-person');}else{clearPetForm();document.getElementById('modal-pet-title').textContent='Add Pet';openModal('modal-pet');}}
+function clearPersonForm(){['p-name','p-dob','p-blood','p-weight','p-allergies','p-conditions','p-insurance','p-policy','p-emergency','p-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('p-relation').value='';document.getElementById('p-gender').value='';document.getElementById('person-photo-preview').innerHTML='';renderContactListUI('doctor','person-contact-list');renderDocListUI('person-doc-list');}
+function clearPetForm(){['pt-name','pt-breed','pt-dob','pt-blood','pt-microchip','pt-allergies','pt-notes','pt-weight'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('pt-species').value='Dog';document.getElementById('pt-gender').value='';document.getElementById('pet-photo-preview').innerHTML='';renderContactListUI('vet','pet-contact-list');renderDocListUI('pet-doc-list');}
+function handlePhoto(inp,kind){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{tempPhoto=e.target.result;document.getElementById(kind+'-photo-preview').innerHTML=`<img class="img-thumb" src="${e.target.result}">`;};r.readAsDataURL(f);}
+
+function saveMember(type){
+  let m;
+  if(type==='person'){const name=gv('p-name');if(!name){alert('Name required');return;}m={id:editMemberId||uid(),memberType:'person',name,relation:gv('p-relation'),dob:gv('p-dob'),gender:gv('p-gender'),blood:gv('p-blood'),weight:gv('p-weight'),allergies:gv('p-allergies'),conditions:gv('p-conditions'),insurance:gv('p-insurance'),policy:gv('p-policy'),emergency:gv('p-emergency'),notes:gv('p-notes'),photo:tempPhoto,contacts:[...tempContacts],docs:[...tempDocs],records:[],chatNotes:[],vitals:[]};closeModal('modal-person');}
+  else{const name=gv('pt-name');if(!name){alert('Name required');return;}m={id:editMemberId||uid(),memberType:'pet',name,species:gv('pt-species'),breed:gv('pt-breed'),dob:gv('pt-dob'),gender:gv('pt-gender'),blood:gv('pt-blood'),weight:gv('pt-weight'),microchip:gv('pt-microchip'),allergies:gv('pt-allergies'),notes:gv('pt-notes'),photo:tempPhoto,contacts:[...tempContacts],docs:[...tempDocs],records:[],chatNotes:[],vitals:[]};closeModal('modal-pet');}
+  if(editMemberId){const idx=S.members.findIndex(x=>x.id===editMemberId);if(idx>=0){m.records=S.members[idx].records||[];m.chatNotes=S.members[idx].chatNotes||[];m.vitals=S.members[idx].vitals||[];S.members[idx]=m;}}else S.members.push(m);
+  saveLocal();syncToGist();renderLanding();
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ============================================================
-// SCREEN NAVIGATION
-// ============================================================
-function showLanding() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-landing').classList.add('active');
-  renderLanding();
-  checkAndSendReminders(false);
-}
-function showSettings() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-settings').classList.add('active');
-  restoreSettingsUI();
-}
-function showDogPage(id) {
-  currentDogId = id;
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-dog').classList.add('active');
-  renderDogPage();
+function editMember(){
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;
+  editMemberId=m.id;tempContacts=[...(m.contacts||[])];tempDocs=[...(m.docs||[])];tempPhoto=m.photo||null;
+  if(m.memberType==='person'){const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};sv('p-name',m.name);sv('p-dob',m.dob);sv('p-blood',m.blood);sv('p-weight',m.weight);sv('p-allergies',m.allergies);sv('p-conditions',m.conditions);sv('p-insurance',m.insurance);sv('p-policy',m.policy);sv('p-emergency',m.emergency);sv('p-notes',m.notes);document.getElementById('p-relation').value=m.relation||'';document.getElementById('p-gender').value=m.gender||'';document.getElementById('person-photo-preview').innerHTML=m.photo?`<img class="img-thumb" src="${m.photo}">`:'';renderContactListUI('doctor','person-contact-list');renderDocListUI('person-doc-list');document.getElementById('modal-person-title').textContent='Edit Profile';openModal('modal-person');}
+  else{const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};sv('pt-name',m.name);sv('pt-breed',m.breed);sv('pt-dob',m.dob);sv('pt-blood',m.blood);sv('pt-weight',m.weight);sv('pt-microchip',m.microchip);sv('pt-allergies',m.allergies);sv('pt-notes',m.notes);document.getElementById('pt-species').value=m.species||'Dog';document.getElementById('pt-gender').value=m.gender||'';document.getElementById('pet-photo-preview').innerHTML=m.photo?`<img class="img-thumb" src="${m.photo}">`:'';renderContactListUI('vet','pet-contact-list');renderDocListUI('pet-doc-list');document.getElementById('modal-pet-title').textContent='Edit Pet';openModal('modal-pet');}
 }
 
-// ============================================================
-// LANDING PAGE
-// ============================================================
-function renderLanding() {
-  const grid = document.getElementById('dogs-grid');
-  const empty = document.getElementById('empty-state');
-  grid.innerHTML = '';
-  if (!S.dogs.length) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  S.dogs.forEach(dog => {
-    const card = document.createElement('div');
-    card.className = 'dog-card';
-    card.innerHTML = dogCardHTML(dog);
-    card.addEventListener('click', () => showDogPage(dog.id));
-    grid.appendChild(card);
-  });
-  renderNotifBanner();
+// CONTACTS
+function openAddContact(type){activeContactType=type;document.getElementById('modal-contact-title').textContent=type==='doctor'?'Add Doctor':'Add Veterinary';['c-name','c-clinic','c-phone','c-address','c-email'].forEach(id=>document.getElementById(id).value='');document.getElementById('c-primary').checked=false;openModal('modal-contact');}
+function saveContact(){const name=gv('c-name');if(!name){alert('Name required');return;}const isPrimary=document.getElementById('c-primary').checked;if(isPrimary)tempContacts.filter(c=>c.ctype===activeContactType).forEach(c=>c.primary=false);tempContacts.push({id:uid(),ctype:activeContactType,name,clinic:gv('c-clinic'),phone:gv('c-phone'),address:gv('c-address'),email:gv('c-email'),primary:isPrimary});['c-name','c-clinic','c-phone','c-address','c-email'].forEach(id=>document.getElementById(id).value='');document.getElementById('c-primary').checked=false;renderContactListUI(activeContactType,activeContactType==='doctor'?'person-contact-list':'pet-contact-list');closeModal('modal-contact');}
+function removeTempContact(i){tempContacts.splice(i,1);renderContactListUI(activeContactType,activeContactType==='doctor'?'person-contact-list':'pet-contact-list');}
+function renderContactListUI(ctype,listId){const el=document.getElementById(listId);if(!el)return;const list=tempContacts.filter(c=>c.ctype===ctype);el.innerHTML=list.map((c,i)=>`<div class="contact-card"><div class="contact-name">${c.name}${c.primary?'<span class="primary-badge">⭐ Primary</span>':''}</div><div class="contact-info">${[c.clinic,c.phone].filter(Boolean).join(' · ')}</div><button class="btn-rm" onclick="removeTempContact(${tempContacts.indexOf(c)})">✕</button></div>`).join('');}
+
+// DOCUMENTS
+function openAddDoc(fromDetail){docFromDetail=!!fromDetail;tempDocImgs=[];tempDocFiles=[];['doc-type','doc-title','doc-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('doc-img-preview').innerHTML='';document.getElementById('doc-file-list').innerHTML='';openModal('modal-doc');}
+function handleDocImgs(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempDocImgs.push(e.target.result);document.getElementById('doc-img-preview').innerHTML+=`<img class="img-thumb" src="${e.target.result}">`;};r.readAsDataURL(f);});}
+function handleDocFiles(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempDocFiles.push({name:f.name,data:e.target.result});document.getElementById('doc-file-list').innerHTML+=`<span class="file-chip">📄 ${f.name}</span>`;};r.readAsDataURL(f);});}
+function saveDoc(){
+  const type=gv('doc-type'),title=gv('doc-title');if(!type&&!title){alert('Select type or enter title');return;}
+  const doc={id:uid(),type,title:title||type,notes:gv('doc-notes'),images:[...tempDocImgs],files:[...tempDocFiles]};
+  if(docFromDetail){const m=S.members.find(x=>x.id===currentMemberId);if(m){if(!m.docs)m.docs=[];m.docs.push(doc);saveLocal();syncToGist();}closeModal('modal-doc');renderDetail();}
+  else{tempDocs.push(doc);const isPet=document.getElementById('modal-pet').classList.contains('open');renderDocListUI(isPet?'pet-doc-list':'person-doc-list');closeModal('modal-doc');}
 }
+function renderDocListUI(listId){const el=document.getElementById(listId);if(!el)return;el.innerHTML=tempDocs.map((d,i)=>`<div class="doc-card" style="margin-bottom:8px"><div class="doc-title">📑 ${d.title}</div>${d.notes?`<div class="doc-note">${d.notes}</div>`:''}<button class="btn-rm" onclick="removeTempDoc(${i})">✕</button></div>`).join('');}
+function removeTempDoc(i){tempDocs.splice(i,1);renderDocListUI('person-doc-list');renderDocListUI('pet-doc-list');}
+function removeDoc(i){const m=S.members.find(x=>x.id===currentMemberId);if(!m||!m.docs)return;m.docs.splice(i,1);saveLocal();syncToGist();renderDetail();}
 
-function dogCardHTML(dog) {
-  const age = calcAge(dog.dob);
-  const av = dog.photo
-    ? `<img class="dog-avatar" src="${dog.photo}" alt="${dog.name}">`
-    : `<div class="dog-avatar-ph">${getDogEmoji(dog.breed)}</div>`;
-  const pv = (dog.vets || []).find(v => v.primary);
-  const recs = dog.records || [];
-  const chips = [];
-
-  recs.filter(r => r.type === 'vaccine' && r.nextDate).forEach(r => {
-    const d = daysUntil(r.nextDate);
-    chips.push(`<span class="chip ${d < 0 ? 'exp' : d <= 15 ? 'warn' : 'ok'}">💉 ${r.name} ${d < 0 ? 'OVERDUE' : d <= 15 ? `Due in ${d}d` : '✓'}</span>`);
-  });
-  recs.filter(r => r.type === 'deworm' && r.nextDate).forEach(r => {
-    const d = daysUntil(r.nextDate);
-    chips.push(`<span class="chip ${d < 0 ? 'exp' : d <= 15 ? 'warn' : 'lav'}">💊 Deworm ${d < 0 ? 'OVERDUE' : d <= 15 ? `Due in ${d}d` : '✓'}</span>`);
-  });
-  recs.filter(r => r.type === 'meds' && (!r.endDate || new Date(r.endDate + 'T12:00:00') >= new Date())).forEach(r => {
-    chips.push(`<span class="chip sky">🩺 ${r.name}</span>`);
-  });
-
-  const docs = dog.docs || [];
-  if (docs.length) chips.push(`<span class="chip" style="background:var(--lavender3);color:var(--lavender)">📄 ${docs.length} doc${docs.length !== 1 ? 's' : ''}</span>`);
-
-  return `
-    <div class="dog-card-header">
-      ${av}
-      <div style="flex:1">
-        <div class="dog-name">${dog.name}</div>
-        <div class="dog-sub">${dog.breed || 'Mixed breed'}${age ? ` · ${age}` : ''}</div>
-        ${dog.weight ? `<div style="font-size:10px;color:var(--bark3);margin-top:2px">${dog.weight}kg · ${dog.gender || ''}</div>` : ''}
-        ${pv ? `<div style="font-size:10px;color:var(--sage);font-weight:700;margin-top:3px">🏥 ${pv.name}</div>` : ''}
-      </div>
-      <div style="font-size:18px;opacity:.4">›</div>
-    </div>
-    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : `<div style="font-size:11px;color:var(--bark3);margin-top:4px">No records yet — tap to add</div>`}
-  `;
+// LANDING
+function renderLanding(){
+  const grid=document.getElementById('members-grid'),empty=document.getElementById('empty-state');
+  grid.innerHTML='';if(!S.members.length){empty.style.display='block';return;}empty.style.display='none';
+  S.members.forEach(m=>{const card=document.createElement('div');card.className=`member-card ${m.memberType}`;card.innerHTML=memberCardHTML(m);card.addEventListener('click',()=>showDetail(m.id));grid.appendChild(card);});
+  renderAlertBanner();
 }
-
-function renderNotifBanner() {
-  const banner = document.getElementById('notif-banner');
-  const due = getUpcomingDue();
-  if (!due.length) { banner.style.display = 'none'; return; }
-  banner.style.display = 'block';
-  banner.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--rose)">⚠️ ${due.length} upcoming/overdue item${due.length !== 1 ? 's' : ''}: ${due.slice(0, 3).map(d => d.label).join(' · ')}</div>`;
+function getMemberAlerts(m){
+  const alerts=[];const recs=m.records||[];
+  recs.filter(r=>r.type==='vaccine'&&r.nextDate).forEach(r=>{const d=daysUntil(r.nextDate);if(d<=15)alerts.push({cls:d<0?'red':'amber',label:`💉 ${r.name} ${d<0?'overdue':`in ${d}d`}`});});
+  recs.filter(r=>r.type==='deworm'&&r.nextDate).forEach(r=>{const d=daysUntil(r.nextDate);if(d<=15)alerts.push({cls:d<0?'red':'amber',label:`🐛 Deworm ${d<0?'overdue':`in ${d}d`}`});});
+  recs.filter(r=>r.type==='meds'&&r.refillDate).forEach(r=>{const d=daysUntil(r.refillDate);if(d<=10)alerts.push({cls:d<0?'red':'amber',label:`🔄 ${r.name} refill ${d<0?'overdue':`in ${d}d`}`});});
+  recs.filter(r=>r.type==='meds'&&(!r.endDate||new Date(r.endDate+'T12:00:00')>=new Date())&&!r.refillDate).forEach(r=>alerts.push({cls:'sky',label:`💊 ${r.name}`}));
+  recs.filter(r=>r.type==='appointment'&&r.aptDate).forEach(r=>{const d=daysUntil(r.aptDate.split('T')[0]);if(d>=0&&d<=7)alerts.push({cls:'violet',label:`📅 ${r.title||'Appt'} in ${d}d`});else if(d===-1)alerts.push({cls:'red',label:`📅 ${r.title||'Appt'} today`});});
+  const docs=m.docs||[];if(docs.length)alerts.push({cls:'teal',label:`📄 ${docs.length} doc${docs.length!==1?'s':''}`});
+  return alerts;
 }
-
-function getUpcomingDue() {
-  const due = [];
-  S.dogs.forEach(dog => {
-    (dog.records || []).forEach(r => {
-      const dateField = (r.type === 'vaccine' || r.type === 'deworm') ? r.nextDate : null;
-      if (!dateField) return;
-      const d = daysUntil(dateField);
-      if (d !== null && d <= 15) {
-        due.push({
-          dogName: dog.name,
-          label: `${dog.name}: ${r.name || r.type} ${d < 0 ? 'OVERDUE' : `in ${d}d`}`,
-          days: d, record: r, dog
-        });
-      }
-    });
-  });
-  return due;
+function memberCardHTML(m){
+  const age=calcAge(m.dob);
+  const av=m.photo?`<img class="mc-avatar" src="${m.photo}">`:`<div class="mc-avatar-ph ${m.memberType}">${getMemberEmoji(m)}</div>`;
+  const pc=(m.contacts||[]).find(c=>c.primary);
+  const alerts=getMemberAlerts(m);const shown=alerts.slice(0,3);const extra=alerts.length-3;
+  const sub=m.memberType==='person'?`${m.relation||''}${age?` · ${age}`:''}${m.blood?` · ${m.blood}`:''}`:`${m.species||'Pet'}${m.breed?': '+m.breed:''}${age?` · ${age}`:''}`;
+  return`<div class="mc-header">${av}<div style="flex:1"><div class="mc-name">${m.name}</div><div class="mc-sub">${sub}</div><span class="mc-badge ${m.memberType}">${m.memberType==='person'?m.relation||'Person':'🐾 Pet'}</span>${pc?`<div style="font-size:10px;color:var(--teal);font-weight:700;margin-top:4px">${m.memberType==='person'?'🏥':'🐾'} ${pc.name}</div>`:''}</div><div style="font-size:18px;opacity:.3">›</div></div>${shown.length?`<div class="alert-chips">${shown.map(a=>`<span class="achip ${a.cls}">${a.label}</span>`).join('')}${extra>0?`<span class="more-chip">+${extra} more</span>`:''}</div>`:`<div style="font-size:11px;color:var(--ink3);margin-top:4px">All up to date</div>`}`;
 }
+function renderAlertBanner(){const banner=document.getElementById('alert-banner');const urgent=[];S.members.forEach(m=>{const a=getMemberAlerts(m).filter(x=>x.cls==='red');if(a.length)urgent.push(`${m.name}: ${a.map(x=>x.label).join(', ')}`);});if(!urgent.length){banner.style.display='none';return;}banner.style.display='block';banner.className='alert-banner red';banner.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--rose)">⚠️ ${urgent.slice(0,2).join(' · ')}${urgent.length>2?` +${urgent.length-2} more`:''}</div>`;}
 
-// ============================================================
-// GITHUB GIST SYNC
-// ============================================================
-function ghHeaders(token) {
-  return {
-    'Authorization': `Bearer ${token}`,
-    'Accept': 'application/vnd.github+json',
-    'Content-Type': 'application/json',
-    'X-GitHub-Api-Version': '2022-11-28'
-  };
-}
+// DETAIL PAGE
+function renderDetail(){
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;
+  const recs=m.records||[];const age=calcAge(m.dob);const isPerson=m.memberType==='person';
+  const av=m.photo?`<img class="dh-avatar" src="${m.photo}">`:`<div class="dh-avatar-ph">${getMemberEmoji(m)}</div>`;
+  let html=`<div class="detail-header"><div style="display:flex;align-items:flex-end;gap:14px">${av}<div style="flex:1"><div class="dh-name">${m.name}</div><div class="dh-sub">${isPerson?m.relation||'':((m.species||'Pet')+': '+(m.breed||''))}${age?` · ${age}`:''}</div>${m.blood?`<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">🩸 ${m.blood}${m.weight?` · ${m.weight}kg`:''}</div>`:''}</div><button style="background:rgba(255,255,255,.1);color:#fff;border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.15);cursor:pointer" onclick="editMember()">Edit</button></div>${m.allergies?`<div style="margin-top:10px;background:rgba(225,29,72,.15);border-radius:8px;padding:7px 11px;font-size:11px;color:var(--rose2)">⚠️ Allergies: ${m.allergies}</div>`:''}${isPerson&&m.conditions?`<div style="margin-top:6px;background:rgba(217,119,6,.15);border-radius:8px;padding:7px 11px;font-size:11px;color:var(--amber2)">🏷 ${m.conditions}</div>`:''}</div><div style="padding:14px">`;
 
-async function verifyToken(token) {
-  // Quick check: call /user to see if token is valid before syncing
-  const r = await fetch('https://api.github.com/user', {
-    headers: ghHeaders(token)
-  });
-  if (r.status === 401) return { ok: false, reason: 'Token is invalid or expired. Please generate a new one.' };
-  if (r.status === 403) return { ok: false, reason: 'Token does not have permission. Make sure the "gist" scope is checked.' };
-  if (!r.ok) return { ok: false, reason: `GitHub returned error ${r.status}. Check your internet connection.` };
-  const user = await r.json();
-  return { ok: true, login: user.login };
-}
+  // Contacts
+  const contacts=m.contacts||[];if(contacts.length){html+=`<div class="section-card"><div class="sec-label">${isPerson?'🏥 Doctors':'🐾 Vets'}</div>`;contacts.forEach(c=>{html+=`<div class="contact-card" style="margin-bottom:6px"><div class="contact-name">${c.name}${c.primary?'<span class="primary-badge">⭐</span>':''}</div><div class="contact-info">${c.clinic||''}</div>${c.phone?`<div class="contact-info">📞 <a href="tel:${c.phone}" style="color:var(--teal)">${c.phone}</a></div>`:''}</div>`;});html+=`</div>`;}
 
-async function syncToGist() {
-  const { ghToken, ghGistId } = S.settings;
-  if (!ghToken) { setSyncStatus('Setup GitHub sync in ⚙ Settings', 'yellow'); return; }
-  setSyncStatus('Syncing...', 'yellow');
-  const content = JSON.stringify({ dogs: S.dogs }, null, 2);
-  try {
-    if (ghGistId) {
-      const r = await fetch(`https://api.github.com/gists/${ghGistId}`, {
-        method: 'PATCH',
-        headers: ghHeaders(ghToken),
-        body: JSON.stringify({ files: { 'pawcare-data.json': { content } } })
-      });
-      if (r.status === 401) { setSyncStatus('✗ Token expired — re-enter in ⚙ Setup', 'red'); return; }
-      if (r.status === 404) { setSyncStatus('✗ Gist not found — clear Gist ID in ⚙ Setup', 'red'); return; }
-      if (!r.ok) { const err = await r.json().catch(()=>{}); setSyncStatus(`✗ GitHub error ${r.status}`, 'red'); return; }
-    } else {
-      const r = await fetch('https://api.github.com/gists', {
-        method: 'POST',
-        headers: ghHeaders(ghToken),
-        body: JSON.stringify({
-          description: 'PawCare – Pet Health Records',
-          public: false,
-          files: { 'pawcare-data.json': { content } }
-        })
-      });
-      if (r.status === 401) { setSyncStatus('✗ Token invalid — check in ⚙ Setup', 'red'); return; }
-      if (!r.ok) { setSyncStatus(`✗ Could not create Gist (${r.status})`, 'red'); return; }
-      const data = await r.json();
-      S.settings.ghGistId = data.id;
-      const el = document.getElementById('gh-gist-id');
-      if (el) el.value = data.id;
-      setStatusBox('gh-status', `✓ Gist created! ID: ${data.id}`, true);
-      saveLocal();
-    }
-    setSyncStatus('✓ Synced to GitHub', 'green');
-  } catch (e) {
-    setSyncStatus('✗ Network error — check connection', 'red');
-    console.error('syncToGist error:', e);
-  }
-}
+  // Insurance info (person)
+  if(isPerson&&(m.insurance||m.emergency)){html+=`<div class="section-card"><div class="sec-label">📋 Info</div>`;if(m.insurance)html+=`<div class="rec-item"><div><div class="rec-name">Insurance</div><div class="rec-meta">${m.insurance}${m.policy?` · Policy: ${m.policy}`:''}</div></div></div>`;if(m.emergency)html+=`<div class="rec-item"><div><div class="rec-name">Emergency Contact</div><div class="rec-meta">${m.emergency}</div></div></div>`;html+=`</div>`;}
 
-async function syncFromGist() {
-  const { ghToken, ghGistId } = S.settings;
-  if (!ghToken || !ghGistId) return;
-  try {
-    const r = await fetch(`https://api.github.com/gists/${ghGistId}`, {
-      headers: ghHeaders(ghToken)
-    });
-    if (!r.ok) return;
-    const data = await r.json();
-    const content = data.files?.['pawcare-data.json']?.content;
-    if (content) {
-      const parsed = JSON.parse(content);
-      if (parsed.dogs) {
-        S.dogs = parsed.dogs;
-        saveLocal();
-        renderLanding();
-      }
-    }
-  } catch (e) { console.error('syncFromGist error:', e); }
-}
-
-async function manualSync() {
-  await syncFromGist();
-  await syncToGist();
-}
-
-function setSyncStatus(msg, color = 'green') {
-  document.getElementById('sync-status-txt').textContent = msg;
-  const dot = document.getElementById('sync-dot');
-  dot.className = 'sync-dot' + (color === 'yellow' ? ' yellow' : color === 'red' ? ' red' : '');
-}
-
-async function saveGithubSettings() {
-  const token = document.getElementById('gh-token').value.trim();
-  const gistId = document.getElementById('gh-gist-id').value.trim();
-  if (!token) { setStatusBox('gh-status', '✗ Please enter your GitHub token.', false); return; }
-
-  setStatusBox('gh-status', '🔄 Verifying token...', true);
-  const check = await verifyToken(token);
-  if (!check.ok) {
-    setStatusBox('gh-status', '✗ ' + check.reason, false);
-    setSyncStatus('✗ Token invalid', 'red');
-    return;
+  // Vitals (person)
+  if(isPerson){
+    const vitals=m.vitals||[];const lv=vitals[0];
+    html+=`<div class="section-card"><div class="sec-label">❤️ Vitals <button onclick="openVitalModal()" style="background:var(--navy);color:#fff;border-radius:50px;padding:3px 10px;font-size:10px;font-weight:700;border:none;cursor:pointer">+ Log</button></div>`;
+    if(lv){html+=`<div class="vital-latest">`;if(lv.bpSys&&lv.bpDia)html+=`<div class="vital-box"><div class="vital-val">${lv.bpSys}/${lv.bpDia}</div><div class="vital-lbl">BP mmHg</div></div>`;if(lv.sugar)html+=`<div class="vital-box"><div class="vital-val">${lv.sugar}</div><div class="vital-lbl">Sugar ${lv.stype||''}</div></div>`;if(lv.weight)html+=`<div class="vital-box"><div class="vital-val">${lv.weight}</div><div class="vital-lbl">Weight kg</div></div>`;if(lv.pulse)html+=`<div class="vital-box"><div class="vital-val">${lv.pulse}</div><div class="vital-lbl">Pulse bpm</div></div>`;html+=`</div>`;}
+    if(vitals.length>1){html+=`<div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">History</div>`;vitals.slice(1,8).forEach(v=>{const parts=[];if(v.bpSys&&v.bpDia)parts.push(`BP ${v.bpSys}/${v.bpDia}`);if(v.sugar)parts.push(`Sugar ${v.sugar}`);if(v.weight)parts.push(`${v.weight}kg`);if(v.pulse)parts.push(`${v.pulse}bpm`);html+=`<div class="vital-item"><span style="font-size:12px;font-weight:700;color:var(--ink)">${parts.join(' · ')}</span><span style="font-size:11px;color:var(--ink3)">${fmtDT(v.dt)}</span></div>`;});}
+    if(!vitals.length)html+=`<div class="no-rec">No vitals logged yet — tap + Log</div>`;html+=`</div>`;
   }
 
-  S.settings.ghToken = token;
-  S.settings.ghGistId = gistId;
-  saveLocal();
-  setStatusBox('gh-status', `✓ Token valid — logged in as @${check.login}. Syncing...`, true);
-  await manualSync();
-  if (S.settings.ghGistId) {
-    setStatusBox('gh-status', `✓ Connected as @${check.login} · Gist ID: ${S.settings.ghGistId}`, true);
-  }
-}
+  // Health records by type
+  const recDefs=isPerson
+    ?[{t:'meds',l:'💊 Medications'},{t:'prescription',l:'📝 Prescriptions'},{t:'appointment',l:'📅 Appointments'},{t:'vaccine',l:'💉 Immunizations'},{t:'lab',l:'🧪 Lab Reports'},{t:'surgery',l:'🏥 Procedures'},{t:'other',l:'📋 Other'}]
+    :[{t:'vaccine',l:'💉 Vaccinations'},{t:'deworm',l:'🐛 Deworming'},{t:'meds',l:'🩺 Medications'},{t:'other',l:'📋 Other'}];
 
-function setStatusBox(id, msg, ok) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.style.display = 'block';
-  el.className = ok ? 'success-box' : 'warn-box';
-  el.textContent = msg;
-}
-
-// ============================================================
-// EMAIL via EmailJS
-// ============================================================
-function saveEmailSettings() {
-  S.settings.email = document.getElementById('notif-email').value.trim();
-  S.settings.ejsPubKey = document.getElementById('ejs-pubkey').value.trim();
-  S.settings.ejsService = document.getElementById('ejs-service').value.trim();
-  S.settings.ejsTemplate = document.getElementById('ejs-template').value.trim();
-  saveLocal();
-  setStatusBox('email-status', '✓ Email settings saved!', true);
-}
-
-async function sendEmail(to, dogName, recName, dueDate, daysLeft) {
-  const { ejsPubKey, ejsService, ejsTemplate } = S.settings;
-  if (!ejsPubKey || !ejsService || !ejsTemplate || !to) return false;
-  try {
-    const r = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        service_id: ejsService,
-        template_id: ejsTemplate,
-        user_id: ejsPubKey,
-        template_params: {
-          to_email: to,
-          dog_name: dogName,
-          record_name: recName,
-          due_date: dueDate,
-          days_left: daysLeft < 0 ? `${Math.abs(daysLeft)} days overdue` : `${daysLeft} day${daysLeft !== 1 ? 's' : ''}`
-        }
-      })
-    });
-    return r.ok || r.status === 200;
-  } catch (e) { console.error('Email error', e); return false; }
-}
-
-async function sendTestEmail() {
-  const { email } = S.settings;
-  if (!email) { alert('Please enter your email address first.'); return; }
-  const sent = await sendEmail(email, 'Buddy', 'Rabies Vaccine', fmtDate(addYears(today(), 0)), 7);
-  setStatusBox('email-status', sent ? '✓ Test email sent! Check your inbox.' : '✗ Could not send. Check your EmailJS credentials and verify the service is active.', sent);
-}
-
-// ============================================================
-// PUSH NOTIFICATIONS
-// ============================================================
-function updatePushStatusUI() {
-  const box = document.getElementById('push-status-box');
-  if (!box) return;
-  if (!('Notification' in window)) {
-    box.className = 'warn-box'; box.textContent = 'Push notifications are not supported in this browser.'; return;
-  }
-  if (Notification.permission === 'granted') {
-    box.className = 'success-box'; box.textContent = '✓ Push notifications are enabled! You will be notified when the app is open in your browser.';
-  } else if (Notification.permission === 'denied') {
-    box.className = 'warn-box'; box.textContent = '✗ Notifications blocked. Go to browser Settings → Site Settings → Notifications and allow this site.';
-  } else {
-    box.className = 'warn-box'; box.textContent = 'Tap "Enable Push Notifications" below to allow reminders on this device.';
-  }
-}
-
-async function requestPushPermission() {
-  if (!('Notification' in window)) { alert('This browser does not support notifications.'); return; }
-  const perm = await Notification.requestPermission();
-  S.settings.pushEnabled = perm === 'granted';
-  saveLocal();
-  updatePushStatusUI();
-  if (perm === 'granted') sendTestPush();
-}
-
-function sendPush(title, body) {
-  if (Notification.permission !== 'granted') return;
-  new Notification(title, {
-    body,
-    icon: 'https://em-content.zobj.net/thumbs/120/apple/354/paw-prints_1f43e.png',
-    badge: 'https://em-content.zobj.net/thumbs/120/apple/354/paw-prints_1f43e.png'
+  recDefs.forEach(rd=>{
+    const list=recs.filter(r=>r.type===rd.t);
+    html+=`<div class="section-card"><div class="sec-label">${rd.l}</div>`;
+    if(!list.length){html+=`<div class="no-rec">No records yet</div>`;}
+    list.forEach(r=>{html+=buildRecHTML(r);});
+    html+=`</div>`;
   });
-}
-
-function sendTestPush() {
-  if (Notification.permission !== 'granted') { alert('Please enable push notifications first.'); return; }
-  sendPush('🐾 PawCare Test Notification', 'Reminders for vaccinations and deworming will look like this!');
-}
-
-// ============================================================
-// REMINDERS — check on app open, once per day
-// ============================================================
-async function checkAndSendReminders(force) {
-  const todayStr = today();
-  if (!force && S.settings.lastReminderCheck === todayStr) return;
-
-  const due = getUpcomingDue();
-  const results = [];
-
-  for (const item of due) {
-    const { days, record, dog } = item;
-    // Send at exactly 15, 7, 1 days before — and every day once overdue
-    const triggerDays = [15, 7, 1];
-    const shouldTrigger = days < 0 || triggerDays.includes(days);
-    if (!shouldTrigger) continue;
-
-    const key = `${record.id}_${days < 0 ? 'overdue' : days}`;
-    if (S.settings.remindersSent[key] && !force) continue;
-
-    const recName = record.name || record.title || record.type;
-    const dueDate = fmtDate(record.nextDate || record.date);
-    const label = days < 0
-      ? `OVERDUE by ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''}`
-      : `due in ${days} day${days !== 1 ? 's' : ''}`;
-
-    // Push notification
-    sendPush(`⚠️ ${dog.name}: ${recName}`, `${recName} is ${label} — ${dueDate}`);
-
-    // Email
-    const sent = await sendEmail(S.settings.email, dog.name, recName, dueDate, days);
-
-    S.settings.remindersSent[key] = Date.now();
-    results.push(`${dog.name}: ${recName} — ${label} | push ✓ | email ${sent ? '✓' : '(configure EmailJS)'}`);
-  }
-
-  S.settings.lastReminderCheck = todayStr;
-  saveLocal();
-
-  const el = document.getElementById('reminder-check-result');
-  if (el && force) {
-    el.innerHTML = results.length
-      ? results.map(r => `<div style="padding:3px 0;border-bottom:1px solid var(--warm)">${r}</div>`).join('')
-      : '<div style="color:var(--sage);font-weight:700">✓ No reminders needed — all records are up to date!</div>';
-  }
-}
-
-// ============================================================
-// ADD DOG
-// ============================================================
-function openAddDog() {
-  editDogId = null; tempVets = []; tempDogPhoto = null; tempDocs = [];
-  clearDogForm();
-  document.getElementById('modal-dog-title').textContent = 'Add Pet Profile';
-  document.getElementById('dog-photo-preview').innerHTML = '';
-  renderVetList();
-  openModal('modal-dog');
-}
-
-function clearDogForm() {
-  ['dog-name','dog-breed','dog-dob','dog-weight','dog-color','dog-microchip','dog-allergies','dog-blood','dog-notes']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('dog-gender').value = '';
-  renderDocList();
-}
-
-function handleDogPhoto(inp) {
-  const f = inp.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = e => {
-    tempDogPhoto = e.target.result;
-    document.getElementById('dog-photo-preview').innerHTML = `<img class="img-thumb" src="${tempDogPhoto}">`;
-  };
-  r.readAsDataURL(f);
-}
-
-function renderVetList() {
-  const el = document.getElementById('vet-list');
-  el.innerHTML = tempVets.map((v, i) => `
-    <div class="vet-card">
-      <div class="vet-name">${v.name}${v.primary ? '<span class="primary-badge">⭐ Primary</span>' : ''}</div>
-      <div class="vet-info">${[v.clinic, v.phone].filter(Boolean).join(' · ')}</div>
-      <button class="btn-rm" onclick="removeVet(${i})">✕</button>
-    </div>`).join('');
-}
-
-function saveVet() {
-  const name = document.getElementById('vet-name').value.trim();
-  if (!name) { alert('Vet name is required'); return; }
-  const isPrimary = document.getElementById('vet-primary').checked;
-  if (isPrimary) tempVets.forEach(v => v.primary = false);
-  tempVets.push({
-    id: uid(), name,
-    clinic: document.getElementById('vet-clinic').value.trim(),
-    phone: document.getElementById('vet-phone').value.trim(),
-    address: document.getElementById('vet-address').value.trim(),
-    email: document.getElementById('vet-email').value.trim(),
-    primary: isPrimary
-  });
-  ['vet-name','vet-clinic','vet-phone','vet-address','vet-email'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('vet-primary').checked = false;
-  renderVetList();
-  closeModal('modal-vet');
-}
-
-function removeVet(i) { tempVets.splice(i, 1); renderVetList(); }
-
-function saveDog() {
-  const name = document.getElementById('dog-name').value.trim();
-  if (!name) { alert('Pet name is required'); return; }
-  const dog = {
-    id: editDogId || uid(), name,
-    breed: document.getElementById('dog-breed').value.trim(),
-    dob: document.getElementById('dog-dob').value,
-    gender: document.getElementById('dog-gender').value,
-    weight: document.getElementById('dog-weight').value,
-    color: document.getElementById('dog-color').value.trim(),
-    microchip: document.getElementById('dog-microchip').value.trim(),
-    allergies: document.getElementById('dog-allergies').value.trim(),
-    blood: document.getElementById('dog-blood').value.trim(),
-    notes: document.getElementById('dog-notes').value.trim(),
-    photo: tempDogPhoto,
-    vets: [...tempVets],
-    docs: [...tempDocs],
-    records: [],
-    chatNotes: []
-  };
-  if (editDogId) {
-    const idx = S.dogs.findIndex(d => d.id === editDogId);
-    if (idx >= 0) {
-      dog.records = S.dogs[idx].records || [];
-      dog.chatNotes = S.dogs[idx].chatNotes || [];
-      S.dogs[idx] = dog;
-    }
-  } else {
-    S.dogs.push(dog);
-  }
-  saveLocal(); syncToGist();
-  closeModal('modal-dog'); renderLanding();
-}
-
-// ============================================================
-// DOG DETAIL PAGE
-// ============================================================
-function renderDogPage() {
-  const dog = S.dogs.find(d => d.id === currentDogId);
-  if (!dog) return;
-  const recs = dog.records || [];
-  const vaccines = recs.filter(r => r.type === 'vaccine');
-  const deworms = recs.filter(r => r.type === 'deworm');
-  const meds = recs.filter(r => r.type === 'meds');
-  const others = recs.filter(r => r.type === 'other');
-  const age = calcAge(dog.dob);
-  const av = dog.photo
-    ? `<img class="dog-pg-avatar" src="${dog.photo}" alt="${dog.name}">`
-    : `<div class="dog-pg-avatar-ph">${getDogEmoji(dog.breed)}</div>`;
-
-  let html = `
-    <div class="dog-page-header">
-      <div style="display:flex;align-items:flex-end;gap:14px">
-        ${av}
-        <div style="flex:1">
-          <div class="dog-pg-name">${dog.name}</div>
-          <div class="dog-pg-sub">${dog.breed || 'Mixed breed'}${age ? ` · ${age}` : ''}</div>
-          ${dog.weight ? `<div style="font-size:11px;color:var(--bark3);margin-top:2px">${dog.weight}kg · ${dog.gender || ''}</div>` : ''}
-        </div>
-        <button style="background:rgba(255,255,255,.12);color:#fff;border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;border:none;cursor:pointer" onclick="editDog()">Edit</button>
-      </div>
-      ${dog.allergies ? `<div style="margin-top:10px;background:rgba(196,98,106,.15);border-radius:8px;padding:7px 11px;font-size:11px;color:var(--rose2)">⚠️ <strong>Allergies:</strong> ${dog.allergies}</div>` : ''}
-      ${dog.blood ? `<div style="margin-top:6px;font-size:11px;color:var(--bark3)">🩸 Blood: <strong style="color:#fff">${dog.blood}</strong> ${dog.microchip ? `&nbsp;·&nbsp; 🏷 Chip: <strong style="color:#fff">${dog.microchip}</strong>` : ''}</div>` : ''}
-    </div>
-    <div style="padding:14px">
-  `;
-
-  // Vets
-  if (dog.vets && dog.vets.length) {
-    html += `<div class="section-card"><div class="sec-label">🏥 Veterinary Contacts</div>`;
-    dog.vets.forEach(v => {
-      html += `<div class="vet-card" style="margin-bottom:6px">
-        <div class="vet-name">${v.name}${v.primary ? '<span class="primary-badge">⭐ Primary</span>' : ''}</div>
-        <div class="vet-info">${v.clinic || ''}</div>
-        ${v.phone ? `<div class="vet-info">📞 <a href="tel:${v.phone}" style="color:var(--sage)">${v.phone}</a></div>` : ''}
-        ${v.address ? `<div class="vet-info">📍 ${v.address}</div>` : ''}
-        ${v.email ? `<div class="vet-info">✉️ ${v.email}</div>` : ''}
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // Vaccinations
-  html += `<div class="section-card"><div class="sec-label">💉 Vaccinations</div>`;
-  if (!vaccines.length) html += `<div class="no-rec">No vaccination records yet</div>`;
-  vaccines.forEach(r => {
-    const d = daysUntil(r.nextDate);
-    const nc = r.nextDate ? (d < 0 ? 'exp' : d <= 15 ? 'warn' : 'ok') : '';
-    const nl = r.nextDate ? (d < 0 ? `Overdue ${Math.abs(d)}d` : d === 0 ? 'Due today' : `In ${d}d`) : '—';
-    html += `<div class="rec-item">
-      <div style="flex:1">
-        <div class="rec-name">${r.name}</div>
-        <div class="rec-meta">${r.vtype || ''} ${r.lot ? `· Lot #${r.lot}` : ''} ${r.vetProvider ? `· ${r.vetProvider}` : ''}</div>
-        ${r.notes ? `<div class="rec-meta" style="font-style:italic;margin-top:2px">${r.notes}</div>` : ''}
-        ${r.images && r.images.length ? `<div class="img-preview">${r.images.map(img => `<img src="${img}" class="img-thumb">`).join('')}</div>` : ''}
-      </div>
-      <div style="text-align:right;flex-shrink:0;min-width:80px">
-        <div class="date-lbl">Given</div>
-        <div class="date-val">${fmtDate(r.date)}</div>
-        ${r.nextDate ? `<div class="date-next ${nc}">↻ ${nl}</div>` : ''}
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Deworming
-  html += `<div class="section-card"><div class="sec-label">💊 Deworming</div>`;
-  if (!deworms.length) html += `<div class="no-rec">No deworming records yet</div>`;
-  deworms.forEach(r => {
-    const d = daysUntil(r.nextDate);
-    const nc = r.nextDate ? (d < 0 ? 'exp' : d <= 14 ? 'warn' : 'ok') : '';
-    const nl = r.nextDate ? (d < 0 ? `Overdue ${Math.abs(d)}d` : d === 0 ? 'Due today' : `In ${d}d`) : '—';
-    html += `<div class="rec-item">
-      <div style="flex:1">
-        <div class="rec-name">${r.name}</div>
-        <div class="rec-meta">${r.dtype || ''} ${r.dose ? `· ${r.dose}` : ''}</div>
-        ${r.notes ? `<div class="rec-meta" style="font-style:italic">${r.notes}</div>` : ''}
-      </div>
-      <div style="text-align:right;flex-shrink:0;min-width:80px">
-        <div class="date-lbl">Given</div>
-        <div class="date-val">${fmtDate(r.date)}</div>
-        ${r.nextDate ? `<div class="date-next ${nc}">↻ ${nl}</div>` : ''}
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Medications
-  html += `<div class="section-card"><div class="sec-label">🩺 Medications</div>`;
-  if (!meds.length) html += `<div class="no-rec">No medication records yet</div>`;
-  meds.forEach(r => {
-    const act = !r.endDate || new Date(r.endDate + 'T12:00:00') >= new Date();
-    html += `<div class="rec-item">
-      <div style="flex:1">
-        <div class="rec-name">${r.name} <span class="tag ${act ? 'active' : 'done'}">${act ? 'Active' : 'Completed'}</span></div>
-        <div class="rec-meta">${r.cond || ''} ${r.dose ? `· ${r.dose}` : ''} ${r.vetProvider ? `· ${r.vetProvider}` : ''}</div>
-        ${r.notes ? `<div class="rec-meta" style="font-style:italic">${r.notes}</div>` : ''}
-      </div>
-      <div style="text-align:right;flex-shrink:0;min-width:80px">
-        <div class="date-lbl">Start</div>
-        <div class="date-val">${fmtDate(r.startDate)}</div>
-        ${r.endDate ? `<div style="font-size:10px;color:var(--bark3)">End: ${fmtDate(r.endDate)}</div>` : ''}
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Other records
-  if (others.length) {
-    html += `<div class="section-card"><div class="sec-label">📋 Other Records</div>`;
-    others.forEach(r => {
-      html += `<div class="rec-item">
-        <div style="flex:1">
-          <div class="rec-name">${r.title}</div>
-          <div class="rec-meta">${r.vetProvider || ''}</div>
-          ${r.notes ? `<div class="rec-meta" style="font-style:italic">${r.notes}</div>` : ''}
-          ${r.images && r.images.length ? `<div class="img-preview">${r.images.map(img => `<img src="${img}" class="img-thumb">`).join('')}</div>` : ''}
-        </div>
-        <div style="text-align:right;flex-shrink:0;min-width:80px">
-          <div class="date-lbl">Date</div>
-          <div class="date-val">${fmtDate(r.date)}</div>
-        </div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
 
   // Documents
-  const docs = dog.docs || [];
-  html += `<div class="section-card"><div class="sec-label">📄 Pet Documentation</div>`;
-  if (!docs.length) html += `<div class="no-rec">No documents added yet</div>`;
-  docs.forEach((doc, i) => {
-    const fileLinks = (doc.files || []).map(f =>
-      `<a class="doc-file-link" href="${f.data}" download="${f.name}" onclick="event.stopPropagation()">📄 ${f.name}</a>`
-    ).join('');
-    const imgThumbs = (doc.images || []).map(img =>
-      `<img class="doc-file-thumb" src="${img}" onclick="event.stopPropagation()" alt="doc">`
-    ).join('');
-    html += `<div class="doc-card">
-      <div><span class="doc-icon">📑</span><span class="doc-title">${doc.title || doc.type}</span></div>
-      ${doc.type && doc.title ? `<div style="font-size:10px;color:var(--lavender);font-weight:600;margin-top:2px">${doc.type}</div>` : ''}
-      ${doc.notes ? `<div class="doc-note">${doc.notes}</div>` : ''}
-      ${(doc.images || []).length || (doc.files || []).length ? `<div class="doc-files">${imgThumbs}${fileLinks}</div>` : ''}
-      <button class="btn-rm" onclick="removeDoc(${i})" style="top:8px;right:8px">✕</button>
-    </div>`;
-  });
-  html += `<button style="background:var(--lavender3);color:var(--lavender);border-radius:var(--r);padding:9px;font-size:12px;font-weight:700;width:100%;cursor:pointer;border:none;margin-top:4px" onclick="openAddDoc()">+ Add Document</button></div>`;
+  const docs=m.docs||[];
+  html+=`<div class="section-card"><div class="sec-label">📄 Documents</div>`;
+  if(!docs.length)html+=`<div class="no-rec">No documents added</div>`;
+  docs.forEach((d,i)=>{const imgs=(d.images||[]).map(img=>`<img class="doc-file-thumb" src="${img}">`).join('');const files=(d.files||[]).map(f=>`<a class="doc-file-link" href="${f.data}" download="${f.name}" onclick="event.stopPropagation()">📄 ${f.name}</a>`).join('');html+=`<div class="doc-card"><div class="doc-title">📑 ${d.title}</div>${d.type&&d.title!==d.type?`<div style="font-size:10px;color:var(--violet);font-weight:600;margin-top:2px">${d.type}</div>`:''} ${d.notes?`<div class="doc-note">${d.notes}</div>`:''} ${imgs||files?`<div class="doc-files">${imgs}${files}</div>`:''}<button class="btn-rm" onclick="removeDoc(${i})">✕</button></div>`;});
+  html+=`<button style="background:var(--violet3);color:var(--violet);border-radius:var(--r);padding:9px;font-size:12px;font-weight:700;width:100%;cursor:pointer;border:none;margin-top:6px" onclick="openAddDoc(true)">+ Add Document</button></div>`;
 
-  // Notes / Vet Chat
-  const notes = dog.chatNotes || [];
-  html += `
-    <div class="section-card">
-      <div class="sec-label">📝 Notes & Vet Notes</div>
-      <div id="notes-list">
-        ${!notes.length ? '<div class="no-rec">No notes yet — add what the vet said!</div>' : ''}
-        ${notes.map(n => `
-          <div class="note-item">
-            <div class="note-text">${n.text}</div>
-            <div class="note-date">${new Date(n.ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-          </div>`).join('')}
-      </div>
-      <div class="note-row">
-        <input type="text" id="note-input" placeholder="Add a note from the vet or anything you want to remember..." onkeypress="if(event.key==='Enter')addNote()">
-        <button class="btn-send" onclick="addNote()">Add</button>
-      </div>
-    </div>
-    <div style="height:80px"></div>
-  </div>`;
-
-  document.getElementById('dog-page-content').innerHTML = html;
+  // Notes
+  const notes=m.chatNotes||[];
+  html+=`<div class="section-card"><div class="sec-label">📝 Notes</div><div id="notes-list">`;
+  if(!notes.length)html+=`<div class="no-rec">No notes yet</div>`;
+  notes.forEach(n=>{html+=`<div class="note-item"><div class="note-text">${n.text}</div><div class="note-date">${fmtDT(n.ts)}</div></div>`;});
+  html+=`</div><div class="note-row"><input type="text" id="note-input" placeholder="Add a note..." onkeypress="if(event.key==='Enter')addNote()"><button class="btn-send" onclick="addNote()">Add</button></div></div>`;
+  html+=`<div style="height:80px"></div></div>`;
+  document.getElementById('detail-content').innerHTML=html;
 }
 
-function addNote() {
-  const inp = document.getElementById('note-input');
-  const text = inp.value.trim();
-  if (!text) return;
-  const dog = S.dogs.find(d => d.id === currentDogId);
-  if (!dog) return;
-  if (!dog.chatNotes) dog.chatNotes = [];
-  dog.chatNotes.unshift({ id: uid(), text, ts: Date.now() });
-  saveLocal(); syncToGist();
-  renderDogPage();
+function buildRecHTML(r){
+  const files=(r.files||[]).map(f=>`<a class="doc-file-link" href="${f.data}" download="${f.name}" onclick="event.stopPropagation()">📄 ${f.name}</a>`).join('');
+  const imgs=(r.images||[]).map(img=>`<img class="img-thumb" src="${img}">`).join('');
+  const attachments=imgs||files?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${imgs}${files}</div>`:'';
+  if(r.type==='meds'){
+    const act=!r.endDate||new Date(r.endDate+'T12:00:00')>=new Date();
+    const rd=r.refillDate?daysUntil(r.refillDate):null;
+    const rtag=rd!==null?`<span class="tag ${rd<0?'exp':rd<=10?'refill':'ok'}">🔄 Refill ${rd<0?'overdue':`in ${rd}d`}</span>`:'';
+    return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.name} <span class="tag ${act?'active':'done'}">${act?'Active':'Done'}</span>${rtag}</div><div class="rec-meta">${[r.dosage,r.frequency,r.condition].filter(Boolean).join(' · ')}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}${attachments}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Start</div><div class="date-val">${fmtDate(r.startDate)}</div>${r.refillDate?`<div class="date-next ${rd<0?'exp':rd<=10?'warn':'ok'}">↻ ${fmtDate(r.refillDate)}</div>`:''}</div></div>`;
+  }
+  if(r.type==='vaccine'){const d=daysUntil(r.nextDate);const nc=r.nextDate?(d<0?'exp':d<=15?'warn':'ok'):'';const nl=r.nextDate?(d<0?`OD ${Math.abs(d)}d`:d===0?'Today':`In ${d}d`):'';return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.name}</div><div class="rec-meta">${r.vetProvider||''}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}${attachments}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Given</div><div class="date-val">${fmtDate(r.date)}</div>${r.nextDate?`<div class="date-next ${nc}">↻ ${nl}</div>`:''}</div></div>`;}
+  if(r.type==='deworm'){const d=daysUntil(r.nextDate);const nc=r.nextDate?(d<0?'exp':d<=14?'warn':'ok'):'';const nl=r.nextDate?(d<0?`OD ${Math.abs(d)}d`:d===0?'Today':`In ${d}d`):'';return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.name}</div><div class="rec-meta">${r.dtype||''}${r.dose?` · ${r.dose}`:''}</div></div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Given</div><div class="date-val">${fmtDate(r.date)}</div>${r.nextDate?`<div class="date-next ${nc}">↻ ${nl}</div>`:''}</div></div>`;}
+  if(r.type==='appointment'){const d=daysUntil(r.aptDate?r.aptDate.split('T')[0]:null);return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${r.title||'Appointment'}</div><div class="rec-meta">${[r.doctor,r.location].filter(Boolean).join(' · ')}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Date</div><div class="date-val" style="font-size:11px">${fmtDate(r.aptDate)}</div>${d!==null&&d>=0&&d<=7?`<div class="date-next warn">In ${d}d</div>`:''}</div></div>`;}
+  // prescription, lab, surgery, other
+  const dateField=r.aptDate||r.date;const titleField=r.title||r.type;
+  return`<div class="rec-item"><div style="flex:1"><div class="rec-name">${titleField}</div><div class="rec-meta">${[r.doctor,r.labName,r.hospital,r.surgeon].filter(Boolean).join(' · ')}</div>${r.notes?`<div class="rec-meta" style="font-style:italic">${r.notes}</div>`:''}${attachments}</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Date</div><div class="date-val">${fmtDate(dateField)}</div></div></div>`;
 }
 
-function editDog() {
-  const dog = S.dogs.find(d => d.id === currentDogId);
-  if (!dog) return;
-  editDogId = dog.id;
-  tempVets = [...(dog.vets || [])];
-  tempDogPhoto = dog.photo || null;
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-  set('dog-name', dog.name); set('dog-breed', dog.breed); set('dog-dob', dog.dob);
-  set('dog-weight', dog.weight); set('dog-color', dog.color); set('dog-microchip', dog.microchip);
-  set('dog-allergies', dog.allergies); set('dog-blood', dog.blood); set('dog-notes', dog.notes);
-  document.getElementById('dog-gender').value = dog.gender || '';
-  document.getElementById('dog-photo-preview').innerHTML = dog.photo ? `<img class="img-thumb" src="${dog.photo}">` : '';
-  tempDocs = [...(dog.docs || [])];
-  renderVetList();
-  renderDocList();
-  document.getElementById('modal-dog-title').textContent = 'Edit Pet Profile';
-  openModal('modal-dog');
+function addNote(){const inp=document.getElementById('note-input'),text=inp.value.trim();if(!text)return;const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;if(!m.chatNotes)m.chatNotes=[];m.chatNotes.unshift({id:uid(),text,ts:new Date().toISOString()});saveLocal();syncToGist();renderDetail();}
+
+// VITALS
+function openVitalModal(){['v-bpsys','v-bpdia','v-sugar','v-weight','v-pulse','v-temp','v-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('v-dt').value=new Date().toISOString().slice(0,16);openModal('modal-vital');}
+function saveVital(){
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;if(!m.vitals)m.vitals=[];
+  const v={id:uid(),dt:document.getElementById('v-dt').value||new Date().toISOString(),bpSys:gv('v-bpsys'),bpDia:gv('v-bpdia'),sugar:gv('v-sugar'),stype:gv('v-stype'),weight:gv('v-weight'),pulse:gv('v-pulse'),temp:gv('v-temp'),notes:gv('v-notes')};
+  if(!v.bpSys&&!v.sugar&&!v.weight&&!v.pulse){alert('Enter at least one reading');return;}
+  m.vitals.unshift(v);saveLocal();syncToGist();closeModal('modal-vital');renderDetail();
 }
 
-// ============================================================
 // HEALTH RECORDS
-// ============================================================
-function openAddRecord() {
-  currentRecType = 'vaccine';
-  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
-  document.querySelector('.rtab[data-type="vaccine"]').classList.add('active');
-  ['vaccine','deworm','meds','other'].forEach(t => {
-    document.getElementById(`fields-${t}`).style.display = t === 'vaccine' ? 'block' : 'none';
-  });
-  ['rv-name','rv-lot','rv-vet','rv-notes','rd-name','rd-dose','rd-notes',
-   'rm-name','rm-cond','rm-dose','rm-vet','rm-notes','ro-title','ro-vet','ro-notes']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  ['rv-date','rv-next','rd-date','rd-next','rm-start','rm-end','ro-date']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('rv-vtype').value = 'Core';
-  document.getElementById('rd-dtype').value = 'Roundworm';
-  tempRecImgs = []; tempRecFiles = [];
-  document.getElementById('rec-img-preview').innerHTML = '';
-  const rfl = document.getElementById('rec-file-list'); if(rfl) rfl.innerHTML = '';
-  openModal('modal-record');
+const PET_TYPES=[{t:'vaccine',l:'💉 Vaccination'},{t:'deworm',l:'🐛 Deworming'},{t:'meds',l:'🩺 Medication'},{t:'other',l:'📋 Other'}];
+const PERSON_TYPES=[{t:'meds',l:'💊 Medication'},{t:'prescription',l:'📝 Prescription'},{t:'appointment',l:'📅 Appointment'},{t:'vaccine',l:'💉 Immunization'},{t:'lab',l:'🧪 Lab Report'},{t:'surgery',l:'🏥 Procedure'},{t:'other',l:'📋 Other'}];
+
+function openAddRecord(){
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;
+  const types=m.memberType==='person'?PERSON_TYPES:PET_TYPES;
+  currentRecType=types[0].t;
+  document.getElementById('rec-type-tabs').innerHTML=types.map(tp=>`<button class="rtab${tp.t===currentRecType?' active':''}" onclick="setRecType('${tp.t}',this)">${tp.l}</button>`).join('');
+  tempRecImgs=[];tempRecFiles=[];document.getElementById('rec-img-preview').innerHTML='';document.getElementById('rec-file-list').innerHTML='';
+  renderRecFields(currentRecType,m.memberType);openModal('modal-record');
+}
+function setRecType(t,btn){currentRecType=t;document.querySelectorAll('#rec-type-tabs .rtab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const m=S.members.find(x=>x.id===currentMemberId);renderRecFields(t,m?m.memberType:'pet');}
+
+function renderRecFields(type,mtype){
+  const el=document.getElementById('rec-fields');let h='';
+  if(type==='meds'){h=`<div class="form-group"><label class="form-label">Medication Name *</label><input type="text" id="rf-name" placeholder="${mtype==='person'?'e.g. Metformin 500mg':'e.g. Apoquel, Bravecto'}"></div><div class="form-row"><div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rf-dosage" placeholder="1 tablet"></div><div class="form-group"><label class="form-label">Frequency</label><select id="rf-freq"><option>Once daily</option><option>Twice daily</option><option>Three times daily</option><option>Every 8 hours</option><option>Every 12 hours</option><option>Weekly</option><option>Monthly</option><option>As needed</option></select></div></div><div class="form-group"><label class="form-label">Condition / Purpose</label><input type="text" id="rf-cond" placeholder="e.g. Diabetes, Blood pressure control"></div><div class="form-row"><div class="form-group"><label class="form-label">Start Date *</label><input type="date" id="rf-start" onchange="calcRefill()"></div><div class="form-group"><label class="form-label">End Date (blank = ongoing)</label><input type="date" id="rf-end"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Days Supply</label><input type="number" id="rf-supply" placeholder="30 days" onchange="calcRefill()"></div><div class="form-group"><label class="form-label">Refill Date (auto-calc)</label><input type="date" id="rf-refill"></div></div><div class="warn-box" style="font-size:11px;margin:0 0 10px">💡 Enter Days Supply → refill date auto-set to 10 days before running out. Reminders sent at 10d and 7d.</div><div class="form-group"><label class="form-label">Prescribed By</label><input type="text" id="rf-doctor" placeholder="Dr. Name"></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="Side effects, instructions..."></textarea></div>`;}
+  else if(type==='vaccine'){const lbl=mtype==='person'?'Immunization':'Vaccine';h=`<div class="form-group"><label class="form-label">${lbl} Name *</label><input type="text" id="rf-name" placeholder="${mtype==='person'?'Flu Vaccine, Hepatitis B':'Rabies, DHPP'}"></div><div class="form-row"><div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rf-date" onchange="autoNV()"></div><div class="form-group"><label class="form-label">Lot / Batch #</label><input type="text" id="rf-lot" placeholder="Optional"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Next Due (auto: 1yr)</label><input type="date" id="rf-next"></div><div class="form-group"><label class="form-label">Administered By</label><input type="text" id="rf-vp" placeholder="Dr. / Clinic"></div></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="Reaction, brand..."></textarea></div>`;}
+  else if(type==='deworm'){h=`<div class="form-group"><label class="form-label">Medicine Name *</label><input type="text" id="rf-name" placeholder="Drontal, Panacur"></div><div class="form-group"><label class="form-label">Type</label><select id="rf-dtype"><option>Roundworm</option><option>Tapeworm</option><option>Hookworm</option><option>Broad Spectrum</option></select></div><div class="form-row"><div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rf-date" onchange="autoND()"></div><div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rf-dose" placeholder="1 tablet"></div></div><div class="form-group"><label class="form-label">Next Due (auto: 3 months)</label><input type="date" id="rf-next"></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="Any notes..."></textarea></div>`;}
+  else if(type==='appointment'){h=`<div class="form-group"><label class="form-label">Title *</label><input type="text" id="rf-title" placeholder="Cardiology Follow-up, Dental Checkup"></div><div class="form-row"><div class="form-group"><label class="form-label">Date & Time *</label><input type="datetime-local" id="rf-aptdate"></div><div class="form-group"><label class="form-label">Doctor</label><input type="text" id="rf-doctor" placeholder="Dr. Name"></div></div><div class="form-group"><label class="form-label">Location / Clinic</label><input type="text" id="rf-location" placeholder="Hospital name & address"></div><div class="form-group"><label class="form-label">Reason / Notes</label><textarea id="rf-notes" placeholder="What is the appointment for?"></textarea></div>`;}
+  else if(type==='prescription'){h=`<div class="form-group"><label class="form-label">Title</label><input type="text" id="rf-title" placeholder="Post-surgery prescription"></div><div class="form-row"><div class="form-group"><label class="form-label">Date *</label><input type="date" id="rf-date"></div><div class="form-group"><label class="form-label">Doctor</label><input type="text" id="rf-doctor" placeholder="Dr. Name"></div></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="What was prescribed for?"></textarea></div>`;}
+  else if(type==='lab'){h=`<div class="form-group"><label class="form-label">Report Title *</label><input type="text" id="rf-title" placeholder="HbA1c, Lipid Profile, Complete Blood Count"></div><div class="form-row"><div class="form-group"><label class="form-label">Date *</label><input type="date" id="rf-date"></div><div class="form-group"><label class="form-label">Lab / Hospital</label><input type="text" id="rf-lab" placeholder="Lab name"></div></div><div class="form-group"><label class="form-label">Key Findings</label><textarea id="rf-notes" placeholder="Key values, doctor's notes..."></textarea></div>`;}
+  else if(type==='surgery'){h=`<div class="form-group"><label class="form-label">Procedure Name *</label><input type="text" id="rf-title" placeholder="Appendectomy, Knee Replacement, Stenting"></div><div class="form-group"><label class="form-label">Date *</label><input type="date" id="rf-date"></div><div class="form-row"><div class="form-group"><label class="form-label">Hospital</label><input type="text" id="rf-hospital" placeholder="Hospital name"></div><div class="form-group"><label class="form-label">Surgeon</label><input type="text" id="rf-surgeon" placeholder="Dr. Name"></div></div><div class="form-group"><label class="form-label">Notes / Outcome</label><textarea id="rf-notes" placeholder="Procedure details, recovery..."></textarea></div>`;}
+  else{h=`<div class="form-group"><label class="form-label">Title *</label><input type="text" id="rf-title" placeholder="Annual Checkup, Weight Review"></div><div class="form-group"><label class="form-label">Date *</label><input type="date" id="rf-date"></div><div class="form-group"><label class="form-label">Provider</label><input type="text" id="rf-doctor" placeholder="Doctor / Clinic"></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="What happened..."></textarea></div>`;}
+  el.innerHTML=h;
+}
+function calcRefill(){const s=gv('rf-start'),sup=parseInt(gv('rf-supply')||0);if(s&&sup>0){const el=document.getElementById('rf-refill');if(el)el.value=addDays(s,sup-10);}}
+function autoNV(){const d=gv('rf-date');if(d){const el=document.getElementById('rf-next');if(el)el.value=addYears(d,1);}}
+function autoND(){const d=gv('rf-date');if(d){const el=document.getElementById('rf-next');if(el)el.value=addMonths(d,3);}}
+
+function saveRecord(){
+  const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;if(!m.records)m.records=[];
+  let rec={id:uid(),type:currentRecType,images:[...tempRecImgs],files:[...tempRecFiles]};
+  if(currentRecType==='meds'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,dosage:gv('rf-dosage'),frequency:gv('rf-freq'),condition:gv('rf-cond'),startDate:gv('rf-start'),endDate:gv('rf-end'),supply:gv('rf-supply'),refillDate:gv('rf-refill'),vetProvider:gv('rf-doctor'),notes:gv('rf-notes')};}
+  else if(currentRecType==='vaccine'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,date:gv('rf-date'),nextDate:gv('rf-next'),lot:gv('rf-lot'),vetProvider:gv('rf-vp'),notes:gv('rf-notes')};}
+  else if(currentRecType==='deworm'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,dtype:gv('rf-dtype'),date:gv('rf-date'),nextDate:gv('rf-next'),dose:gv('rf-dose'),notes:gv('rf-notes')};}
+  else if(currentRecType==='appointment'){const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,aptDate:gv('rf-aptdate'),doctor:gv('rf-doctor'),location:gv('rf-location'),notes:gv('rf-notes')};}
+  else if(currentRecType==='prescription'){rec={...rec,title:gv('rf-title')||'Prescription',date:gv('rf-date'),doctor:gv('rf-doctor'),notes:gv('rf-notes')};}
+  else if(currentRecType==='lab'){const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,date:gv('rf-date'),labName:gv('rf-lab'),notes:gv('rf-notes')};}
+  else if(currentRecType==='surgery'){const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,date:gv('rf-date'),hospital:gv('rf-hospital'),surgeon:gv('rf-surgeon'),notes:gv('rf-notes')};}
+  else{const t=gv('rf-title');if(!t){alert('Title required');return;}rec={...rec,title:t,date:gv('rf-date'),doctor:gv('rf-doctor'),notes:gv('rf-notes')};}
+  m.records.unshift(rec);saveLocal();syncToGist();closeModal('modal-record');renderDetail();checkAndSendReminders(false);
+}
+function handleRecImgs(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempRecImgs.push(e.target.result);document.getElementById('rec-img-preview').innerHTML+=`<img class="img-thumb" src="${e.target.result}">`;};r.readAsDataURL(f);});}
+function handleRecFiles(inp){Array.from(inp.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempRecFiles.push({name:f.name,data:e.target.result});document.getElementById('rec-file-list').innerHTML+=`<span class="file-chip">📄 ${f.name}</span>`;};r.readAsDataURL(f);});}
+
+// GITHUB GIST SYNC
+function ghH(t){return{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'};}
+async function verifyToken(t){try{const r=await fetch('https://api.github.com/user',{headers:ghH(t)});if(r.status===401)return{ok:false,reason:'Token invalid or expired'};if(!r.ok)return{ok:false,reason:`GitHub error ${r.status}`};const u=await r.json();return{ok:true,login:u.login};}catch(e){return{ok:false,reason:'Network error'};}}
+async function syncToGist(){
+  const{ghToken:t,ghGistId:g}=S.settings;if(!t){setSyncStatus('Setup sync in ⚙','y');return;}setSyncStatus('Syncing...','y');
+  const content=JSON.stringify({members:S.members},null,2);
+  try{if(g){const r=await fetch(`https://api.github.com/gists/${g}`,{method:'PATCH',headers:ghH(t),body:JSON.stringify({files:{'meditrack-data.json':{content}}})});if(r.status===401){setSyncStatus('✗ Token expired','r');return;}if(r.status===404){setSyncStatus('✗ Gist not found','r');return;}if(!r.ok){setSyncStatus(`✗ Error ${r.status}`,'r');return;}}
+  else{const r=await fetch('https://api.github.com/gists',{method:'POST',headers:ghH(t),body:JSON.stringify({description:'MediTrack Family Health',public:false,files:{'meditrack-data.json':{content}}})});if(!r.ok){setSyncStatus(`✗ Could not create (${r.status})`,'r');return;}const d=await r.json();S.settings.ghGistId=d.id;const el=document.getElementById('gh-gist-id');if(el)el.value=d.id;setStatusBox('gh-status',`✓ Gist created: ${d.id}`,true);saveLocal();}
+  setSyncStatus('✓ Synced','g');}catch(e){setSyncStatus('✗ Network error','r');}
+}
+async function syncFromGist(){const{ghToken:t,ghGistId:g}=S.settings;if(!t||!g)return;try{const r=await fetch(`https://api.github.com/gists/${g}`,{headers:ghH(t)});if(!r.ok)return;const d=await r.json();const c=d.files?.['meditrack-data.json']?.content;if(c){const p=JSON.parse(c);if(p.members){S.members=p.members;saveLocal();renderLanding();}}}catch(e){}}
+async function manualSync(){await syncFromGist();await syncToGist();}
+function setSyncStatus(msg,c='g'){document.getElementById('sync-status-txt').textContent=msg;const dot=document.getElementById('sync-dot');dot.className='sync-dot'+(c==='y'?' y':c==='r'?' r':'');}
+async function saveGithubSettings(){const t=document.getElementById('gh-token').value.trim();if(!t){setStatusBox('gh-status','Enter token',false);return;}setStatusBox('gh-status','Verifying...',true);const ck=await verifyToken(t);if(!ck.ok){setStatusBox('gh-status','✗ '+ck.reason,false);setSyncStatus('✗ Invalid','r');return;}S.settings.ghToken=t;S.settings.ghGistId=document.getElementById('gh-gist-id').value.trim();saveLocal();setStatusBox('gh-status',`✓ @${ck.login} connected. Syncing...`,true);await manualSync();if(S.settings.ghGistId)setStatusBox('gh-status',`✓ @${ck.login} · Gist: ${S.settings.ghGistId}`,true);}
+function setStatusBox(id,msg,ok){const el=document.getElementById(id);if(!el)return;el.style.display='block';el.className=ok?'success-box':'warn-box';el.textContent=msg;}
+
+// EMAIL
+function saveEmailSettings(){S.settings.email=document.getElementById('notif-email').value.trim();S.settings.ejsPubKey=document.getElementById('ejs-pubkey').value.trim();S.settings.ejsService=document.getElementById('ejs-service').value.trim();S.settings.ejsTemplate=document.getElementById('ejs-template').value.trim();saveLocal();setStatusBox('email-status','✓ Saved!',true);}
+async function sendEmail(to,mName,rName,dDate,days,rType){const{ejsPubKey,ejsService,ejsTemplate}=S.settings;if(!ejsPubKey||!ejsService||!ejsTemplate||!to)return false;try{const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:ejsService,template_id:ejsTemplate,user_id:ejsPubKey,template_params:{to_email:to,member_name:mName,record_name:rName,due_date:dDate,days_left:days<0?`${Math.abs(days)} days overdue`:`${days} days`,reminder_type:rType}})});return r.ok||r.status===200;}catch(e){return false;}}
+async function sendTestEmail(){const{email}=S.settings;if(!email){alert('Enter email first');return;}const sent=await sendEmail(email,'Test Member','Metformin 500mg',fmtDate(addDays(today(),7)),7,'Refill Reminder');setStatusBox('email-status',sent?'✓ Test email sent!':'✗ Check EmailJS credentials',sent);}
+
+// PUSH
+function updatePushStatusUI(){const b=document.getElementById('push-status-box');if(!b)return;if(!('Notification'in window)){b.className='warn-box';b.textContent='Not supported in this browser.';return;}if(Notification.permission==='granted'){b.className='success-box';b.textContent='✓ Enabled!';}else if(Notification.permission==='denied'){b.className='warn-box';b.textContent='Blocked. Allow in browser Site Settings.';}else{b.className='warn-box';b.textContent='Tap Enable below.';}}
+async function requestPushPermission(){if(!('Notification'in window)){alert('Not supported');return;}const p=await Notification.requestPermission();S.settings.pushEnabled=p==='granted';saveLocal();updatePushStatusUI();if(p==='granted')sendTestPush();}
+function sendPush(title,body){if(Notification.permission!=='granted')return;new Notification(title,{body,icon:'https://em-content.zobj.net/thumbs/120/apple/354/medical-symbol_2695-fe0f.png'});}
+function sendTestPush(){if(Notification.permission!=='granted'){alert('Enable first');return;}sendPush('🏥 MediTrack','Reminders will appear like this!');}
+
+// REMINDERS
+async function checkAndSendReminders(force){
+  const ts=today();if(!force&&S.settings.lastReminderCheck===ts)return;
+  const results=[];
+  for(const m of S.members){for(const r of(m.records||[])){
+    const checks=[];
+    if(r.type==='vaccine'&&r.nextDate)checks.push({date:r.nextDate,name:r.name,triggers:[15,7,1],rtype:'Vaccination Due'});
+    if(r.type==='deworm'&&r.nextDate)checks.push({date:r.nextDate,name:r.name,triggers:[15,7,1],rtype:'Deworming Due'});
+    if(r.type==='meds'&&r.refillDate)checks.push({date:r.refillDate,name:r.name+' refill',triggers:[10,7],rtype:'Medication Refill'});
+    if(r.type==='appointment'&&r.aptDate)checks.push({date:r.aptDate.split('T')[0],name:r.title||'Appointment',triggers:[1],rtype:'Appointment Tomorrow'});
+    for(const chk of checks){const d=daysUntil(chk.date);const shouldTrigger=d<0||chk.triggers.includes(d);if(!shouldTrigger)continue;const key=`${r.id}_${d<0?'ov':d}`;if(S.settings.remindersSent[key]&&!force)continue;const label=d<0?`OVERDUE by ${Math.abs(d)}d`:`due in ${d}d`;sendPush(`${m.name}: ${chk.name}`,`${chk.rtype} — ${label} (${fmtDate(chk.date)})`);const sent=await sendEmail(S.settings.email,m.name,chk.name,fmtDate(chk.date),d,chk.rtype);S.settings.remindersSent[key]=Date.now();results.push(`${m.name}: ${chk.name} — ${label} | push ✓ | email ${sent?'✓':'(configure EmailJS)'}`);}
+  }}
+  S.settings.lastReminderCheck=ts;saveLocal();
+  const el=document.getElementById('reminder-result');if(el&&force)el.innerHTML=results.length?results.map(x=>`<div style="padding:3px 0;border-bottom:1px solid #E2E8F0">${x}</div>`).join(''):'<div style="color:var(--sage);font-weight:700">✓ Everything is up to date!</div>';
 }
 
-function setRecType(type, btn) {
-  currentRecType = type;
-  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  ['vaccine','deworm','meds','other'].forEach(t => {
-    document.getElementById(`fields-${t}`).style.display = t === type ? 'block' : 'none';
-  });
-}
-
-function autoNextV() {
-  const d = document.getElementById('rv-date').value;
-  if (d) document.getElementById('rv-next').value = addYears(d, 1);
-}
-function autoNextD() {
-  const d = document.getElementById('rd-date').value;
-  if (d) document.getElementById('rd-next').value = addMonths(d, 3);
-}
-
-function handleRecImgs(inp) {
-  Array.from(inp.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => {
-      tempRecImgs.push(e.target.result);
-      document.getElementById('rec-img-preview').innerHTML += `<img class="img-thumb" src="${e.target.result}">`;
-    };
-    r.readAsDataURL(f);
-  });
-}
-
-function handleRecFiles(inp) {
-  Array.from(inp.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => {
-      tempRecFiles.push({ name: f.name, data: e.target.result });
-      const el = document.getElementById('rec-file-list');
-      if(el) el.innerHTML += `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--sky3);color:var(--sky);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:700">📄 ${f.name}</span>`;
-    };
-    r.readAsDataURL(f);
-  });
-}
-
-// ---- DOCUMENTS (dog profile) ----
-function openAddDoc() {
-  tempDocImgs = []; tempDocFiles = [];
-  ['doc-type','doc-title','doc-notes'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-  document.getElementById('doc-img-preview').innerHTML = '';
-  document.getElementById('doc-file-list').innerHTML = '';
-  openModal('modal-doc');
-}
-
-function handleDocImgs(inp) {
-  Array.from(inp.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => {
-      tempDocImgs.push(e.target.result);
-      document.getElementById('doc-img-preview').innerHTML += `<img class="img-thumb" src="${e.target.result}">`;
-    };
-    r.readAsDataURL(f);
-  });
-}
-
-function handleDocFiles(inp) {
-  Array.from(inp.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => {
-      tempDocFiles.push({ name: f.name, data: e.target.result });
-      document.getElementById('doc-file-list').innerHTML += `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--lavender3);color:var(--lavender);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:700">📄 ${f.name}</span>`;
-    };
-    r.readAsDataURL(f);
-  });
-}
-
-function saveDoc() {
-  const type = document.getElementById('doc-type').value;
-  const title = document.getElementById('doc-title').value.trim();
-  if (!type && !title) { alert('Please select a document type or enter a title.'); return; }
-  tempDocs.push({
-    id: uid(),
-    type,
-    title: title || type,
-    notes: document.getElementById('doc-notes').value.trim(),
-    images: [...tempDocImgs],
-    files: [...tempDocFiles]
-  });
-  renderDocList();
-  closeModal('modal-doc');
-}
-
-function renderDocList() {
-  const el = document.getElementById('dog-docs-list');
-  if (!el) return;
-  if (!tempDocs.length) { el.innerHTML = ''; return; }
-  el.innerHTML = tempDocs.map((d, i) => `
-    <div class="doc-card" style="margin-bottom:8px">
-      <span class="doc-icon">📑</span><span class="doc-title">${d.title}</span>
-      ${d.notes ? `<div class="doc-note">${d.notes}</div>` : ''}
-      ${d.images.length ? `<div style="font-size:10px;color:var(--bark3);margin-top:4px">${d.images.length} image${d.images.length!==1?'s':''}</div>` : ''}
-      ${d.files.length ? `<div style="font-size:10px;color:var(--bark3);">${d.files.map(f=>f.name).join(', ')}</div>` : ''}
-      <button class="btn-rm" onclick="removeTempDoc(${i})">✕</button>
-    </div>`).join('');
-}
-
-function removeTempDoc(i) { tempDocs.splice(i, 1); renderDocList(); }
-
-function removeDoc(i) {
-  const dog = S.dogs.find(d => d.id === currentDogId);
-  if (!dog || !dog.docs) return;
-  dog.docs.splice(i, 1);
-  saveLocal(); syncToGist(); renderDogPage();
-}
-
-function saveRecord() {
-  const dog = S.dogs.find(d => d.id === currentDogId);
-  if (!dog) return;
-  if (!dog.records) dog.records = [];
-  let rec = { id: uid(), type: currentRecType, images: [...tempRecImgs], files: [...tempRecFiles] };
-
-  if (currentRecType === 'vaccine') {
-    const name = document.getElementById('rv-name').value.trim();
-    if (!name) { alert('Vaccine name is required'); return; }
-    rec = { ...rec, name, vtype: document.getElementById('rv-vtype').value,
-      date: document.getElementById('rv-date').value, nextDate: document.getElementById('rv-next').value,
-      lot: document.getElementById('rv-lot').value.trim(), vetProvider: document.getElementById('rv-vet').value.trim(),
-      notes: document.getElementById('rv-notes').value.trim() };
-  } else if (currentRecType === 'deworm') {
-    const name = document.getElementById('rd-name').value.trim();
-    if (!name) { alert('Medicine name is required'); return; }
-    rec = { ...rec, name, dtype: document.getElementById('rd-dtype').value,
-      date: document.getElementById('rd-date').value, nextDate: document.getElementById('rd-next').value,
-      dose: document.getElementById('rd-dose').value.trim(), notes: document.getElementById('rd-notes').value.trim() };
-  } else if (currentRecType === 'meds') {
-    const name = document.getElementById('rm-name').value.trim();
-    if (!name) { alert('Medication name is required'); return; }
-    rec = { ...rec, name, cond: document.getElementById('rm-cond').value.trim(),
-      startDate: document.getElementById('rm-start').value, endDate: document.getElementById('rm-end').value,
-      dose: document.getElementById('rm-dose').value.trim(), vetProvider: document.getElementById('rm-vet').value.trim(),
-      notes: document.getElementById('rm-notes').value.trim() };
-  } else {
-    const title = document.getElementById('ro-title').value.trim();
-    if (!title) { alert('Title is required'); return; }
-    rec = { ...rec, title, date: document.getElementById('ro-date').value,
-      vetProvider: document.getElementById('ro-vet').value.trim(), notes: document.getElementById('ro-notes').value.trim() };
-  }
-
-  dog.records.unshift(rec);
-  saveLocal(); syncToGist();
-  closeModal('modal-record');
-  renderDogPage();
-  checkAndSendReminders(false);
-}
-
-// ============================================================
 // INIT
-// ============================================================
-loadState();
-setSyncStatus('Loading...', 'yellow');
-showLanding();
-
-// On load: pull from Gist first, then push any local changes
-setTimeout(async () => {
-  if (S.settings.ghToken && S.settings.ghGistId) {
-    await syncFromGist();
-    await syncToGist();
-  } else {
-    setSyncStatus('Setup GitHub sync in ⚙ Settings', 'yellow');
-  }
-}, 600);
+loadState();setSyncStatus('Loading...','y');showLanding();
+setTimeout(async()=>{if(S.settings.ghToken&&S.settings.ghGistId){await syncFromGist();await syncToGist();}else setSyncStatus('Setup sync in ⚙','y');},600);
 </script>
 </body>
 </html>
