@@ -1,1 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#3D2C1E">
+<title>PawCare – Pet Health Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FDF8F0;--warm:#F5EDD8;--bark:#3D2C1E;--bark2:#6B4C33;--bark3:#9B7355;
+  --sage:#4A7C59;--sage2:#6BA880;--sage3:#A8D5B5;--sage4:#E8F5ED;
+  --gold:#D4A843;--gold2:#F0C870;--gold3:#FBE9B7;
+  --rose:#C4626A;--rose2:#E8949A;--rose3:#FAE4E5;
+  --sky:#4A7FA8;--sky2:#7AADD4;--sky3:#D4EAF7;
+  --lavender:#7A6BA8;--lavender2:#A89ED4;--lavender3:#E8E5F7;
+  --r:12px;--r2:20px;--r3:28px;
+}
+body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--bark);min-height:100vh;overflow-x:hidden;font-size:14px}
+h1,h2,h3{font-family:'Playfair Display',serif}
+button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:'Nunito',sans-serif;outline:none;border:1.5px solid #DDD0BE;background:#fff;color:var(--bark);border-radius:var(--r);padding:10px 14px;width:100%;font-size:14px;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--bark3)}
+textarea{resize:vertical;min-height:70px}
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* TOP BAR */
+.topbar{background:var(--bark);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:20px;color:#fff}
+.topbar .sub{font-size:10px;color:var(--bark3);font-family:'Nunito',sans-serif;font-weight:600}
+.btn-add{background:var(--gold);color:var(--bark);border-radius:50px;padding:7px 14px;font-size:12px;font-weight:800;transition:transform .15s}
+.btn-add:active{transform:scale(.96)}
+.btn-back{background:rgba(255,255,255,.12);color:#fff;border-radius:50px;padding:6px 12px;font-size:12px;font-weight:700;border:1.5px solid rgba(255,255,255,.2)}
+
+/* SYNC ROW */
+.sync-row{background:var(--sage4);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--sage3);flex-wrap:wrap;gap:6px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block;margin-right:5px;vertical-align:middle}
+.sync-dot.yellow{background:#D4A843}
+.sync-dot.red{background:var(--rose)}
+.sync-status{font-size:11px;font-weight:700;color:var(--bark2);display:flex;align-items:center}
+.sync-btns{display:flex;gap:6px}
+.btn-sm{border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none}
+.btn-sage{background:var(--sage);color:#fff}
+.btn-bark{background:var(--bark);color:#fff}
+
+/* LANDING */
+.landing-body{flex:1;padding:16px}
+.dogs-grid{display:flex;flex-direction:column;gap:14px}
+.empty-state{text-align:center;padding:50px 20px}
+.empty-state .paw{font-size:56px;margin-bottom:14px;opacity:.4}
+
+/* DOG CARD */
+.dog-card{background:#fff;border-radius:var(--r2);padding:16px;border:1.5px solid var(--warm);box-shadow:0 2px 12px rgba(61,44,30,.08);cursor:pointer;transition:transform .15s}
+.dog-card:active{transform:scale(.98)}
+.dog-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.dog-avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;border:3px solid var(--warm);flex-shrink:0}
+.dog-avatar-ph{width:54px;height:54px;border-radius:50%;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:3px solid #DDD0BE}
+.dog-name{font-size:17px;font-weight:800;color:var(--bark)}
+.dog-sub{font-size:11px;color:var(--bark3);font-weight:500;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{padding:4px 9px;border-radius:50px;font-size:10px;font-weight:700}
+.chip.ok{background:var(--sage4);color:var(--sage)}
+.chip.warn{background:var(--gold3);color:#8B6010}
+.chip.exp{background:var(--rose3);color:var(--rose)}
+.chip.sky{background:var(--sky3);color:var(--sky)}
+.chip.lav{background:var(--lavender3);color:var(--lavender)}
+
+/* NOTIFICATION BANNER */
+#notif-banner{display:none;background:var(--rose3);padding:10px 16px;border-bottom:1.5px solid var(--rose2)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(61,44,30,.6);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--cream);border-radius:28px 28px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding-bottom:40px}
+.modal-handle{width:36px;height:4px;background:#DDD0BE;border-radius:4px;margin:11px auto 0}
+.modal-header{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--warm);position:sticky;top:0;background:var(--cream);z-index:10}
+.modal-title{font-size:17px;font-weight:800;color:var(--bark)}
+.btn-close{background:var(--warm);color:var(--bark3);border-radius:50%;width:28px;height:28px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.modal-body{padding:18px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:700;color:var(--bark3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* RECORD TABS */
+.rtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.rtab{padding:7px 12px;border-radius:50px;font-size:12px;font-weight:700;background:var(--warm);color:var(--bark3);cursor:pointer;border:none;transition:all .15s}
+.rtab.active{background:var(--bark);color:#fff}
+
+/* DOG PAGE */
+.dog-page-header{background:var(--bark);padding:14px 16px 18px;color:#fff}
+.dog-pg-avatar{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;flex-shrink:0}
+.dog-pg-avatar-ph{width:64px;height:64px;border-radius:50%;background:var(--warm);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
+.dog-pg-name{font-size:22px;color:#fff}
+.dog-pg-sub{font-size:12px;color:var(--bark3);margin-top:2px}
+.section-card{background:#fff;border-radius:var(--r2);border:1.5px solid var(--warm);padding:14px 16px;margin-bottom:12px}
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--bark3);margin-bottom:10px}
+.rec-item{padding:10px 0;border-bottom:1px solid var(--warm);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.rec-item:last-child{border-bottom:none;padding-bottom:0}
+.rec-name{font-size:13px;font-weight:700;color:var(--bark)}
+.rec-meta{font-size:11px;color:var(--bark3);margin-top:1px}
+.date-lbl{font-size:9px;color:var(--bark3);font-weight:700;text-transform:uppercase}
+.date-val{font-size:12px;font-weight:700;color:var(--bark)}
+.date-next{font-size:10px;font-weight:700;margin-top:3px}
+.date-next.ok{color:var(--sage)}
+.date-next.warn{color:#8B6010}
+.date-next.exp{color:var(--rose)}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;right:16px;width:54px;height:54px;border-radius:50%;background:var(--bark);color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(61,44,30,.35);z-index:50;border:none;cursor:pointer;transition:transform .15s}
+.fab:active{transform:scale(.93)}
+
+/* VET CARDS */
+.vet-card{background:var(--sage4);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;position:relative}
+.vet-name{font-size:13px;font-weight:800;color:var(--sage)}
+.vet-info{font-size:11px;color:var(--bark3);margin-top:2px}
+.primary-badge{background:var(--gold3);color:#8B6010;font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:5px}
+.btn-rm{position:absolute;top:8px;right:8px;background:rgba(196,98,106,.12);color:var(--rose);border-radius:50%;width:22px;height:22px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+
+/* NOTES */
+.note-item{background:var(--gold3);border-radius:var(--r);padding:11px 13px;margin-bottom:7px}
+.note-text{font-size:12px;color:var(--bark);line-height:1.5}
+.note-date{font-size:10px;color:#8B6010;margin-top:3px;font-weight:600}
+.note-row{display:flex;gap:7px;margin-top:8px}
+.note-row input{flex:1;font-size:13px}
+.btn-send{background:var(--bark);color:#fff;border-radius:var(--r);padding:9px 14px;font-size:13px;font-weight:700;flex-shrink:0;cursor:pointer;border:none}
+
+/* IMAGE UPLOAD */
+.img-upload{border:2px dashed #DDD0BE;border-radius:var(--r);padding:14px;text-align:center;cursor:pointer}
+.img-preview{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.img-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:2px solid var(--warm)}
+
+/* SETTINGS */
+.settings-section{background:#fff;border-radius:var(--r2);border:1.5px solid var(--warm);padding:14px 16px;margin-bottom:12px}
+.settings-title{font-size:14px;font-weight:800;color:var(--bark);margin-bottom:4px}
+.settings-sub{font-size:11px;color:var(--bark3);line-height:1.6;margin-bottom:12px}
+.info-box{background:var(--sky3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--sky);line-height:1.6;margin-bottom:12px}
+.warn-box{background:var(--gold3);border-radius:var(--r);padding:10px 13px;font-size:12px;color:#8B6010;line-height:1.5;margin-bottom:12px}
+.success-box{background:var(--sage4);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--sage);line-height:1.5;margin-bottom:12px}
+.btn-full{border-radius:var(--r);padding:13px;font-size:14px;font-weight:800;width:100%;margin-top:6px;cursor:pointer;border:none}
+
+/* MISC */
+.sep{font-size:12px;font-weight:700;color:var(--bark3);margin:14px 0 7px;display:flex;align-items:center;gap:7px}
+.sep::after{content:'';flex:1;height:1px;background:var(--warm)}
+.no-rec{text-align:center;padding:20px 0;color:var(--bark3);font-size:12px}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:50px;font-size:10px;font-weight:700}
+.tag.active{background:var(--sage4);color:var(--sage)}
+.tag.done{background:var(--warm);color:var(--bark3)}
+</style>
+</head>
+<body>
+
+<!-- ==================== LANDING SCREEN ==================== -->
+<div class="screen active" id="screen-landing">
+  <div class="topbar">
+    <div><h1>🐾 PawCare</h1><div class="sub">Pet Health Tracker</div></div>
+    <button class="btn-add" onclick="openAddDog()">+ Add Pet</button>
+  </div>
+  <div class="sync-row">
+    <div class="sync-status"><span class="sync-dot yellow" id="sync-dot"></span><span id="sync-status-txt">Checking sync...</span></div>
+    <div class="sync-btns">
+      <button class="btn-sm btn-sage" onclick="manualSync()">⟳ Sync</button>
+      <button class="btn-sm btn-bark" onclick="showSettings()">⚙ Setup</button>
+    </div>
+  </div>
+  <div id="notif-banner"></div>
+  <div class="landing-body">
+    <div id="dogs-grid" class="dogs-grid"></div>
+    <div id="empty-state" class="empty-state" style="display:none">
+      <div class="paw">🐶</div>
+      <h2>No pets yet</h2>
+      <p style="color:var(--bark3);font-size:13px;margin-top:8px">Tap <strong>+ Add Pet</strong> to create your first pet profile.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DOG DETAIL SCREEN ==================== -->
+<div class="screen" id="screen-dog">
+  <div class="topbar">
+    <button class="btn-back" onclick="showLanding()">← Back</button>
+    <div style="font-size:11px;color:var(--bark3);font-weight:600">Health Records</div>
+  </div>
+  <div id="dog-page-content" style="flex:1;overflow-y:auto;background:var(--cream)"></div>
+  <button class="fab" onclick="openAddRecord()">＋</button>
+</div>
+
+<!-- ==================== SETTINGS SCREEN ==================== -->
+<div class="screen" id="screen-settings">
+  <div class="topbar">
+    <button class="btn-back" onclick="showLanding()">← Back</button>
+    <div style="font-size:13px;color:var(--bark3);font-weight:700">Settings & Sync</div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px">
+
+    <div class="settings-section">
+      <div class="settings-title">🔄 GitHub Gist Auto-Sync</div>
+      <div class="settings-sub">Your data auto-saves to a private GitHub Gist every time you make a change. Anyone with the same token and Gist ID can access the same records from any device.</div>
+      <div class="info-box">
+        <strong>One-time GitHub setup:</strong><br>
+        1. Go to <strong>github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</strong><br>
+        2. Click "Generate new token (classic)"<br>
+        3. Give it a name, tick the <strong>gist</strong> checkbox only<br>
+        4. Copy the token (starts with <code>ghp_</code>) and paste below<br>
+        5. Leave Gist ID blank — it will be created automatically on first save
+      </div>
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token</label>
+        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gist ID (auto-filled after first sync)</label>
+        <input type="text" id="gh-gist-id" placeholder="Will be created automatically">
+      </div>
+      <div id="gh-status" style="display:none"></div>
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveGithubSettings()">Save & Test Connection</button>
+      <button class="btn-full" style="background:var(--sage);color:#fff;margin-top:8px" onclick="manualSync()">⟳ Sync Now</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">📧 Email Reminders via EmailJS</div>
+      <div class="settings-sub">Receive email reminders at 15 days, 7 days, and 1 day before any vaccination or deworming is due. Free — up to 200 emails/month.</div>
+      <div class="info-box">
+        <strong>One-time EmailJS setup (free at emailjs.com):</strong><br>
+        1. Sign up at <strong>emailjs.com</strong> and add a Gmail/Outlook service<br>
+        2. Create an Email Template with subject like "PawCare Reminder" and body using:<br>
+        &nbsp;&nbsp;<code>{{dog_name}}</code> — pet name<br>
+        &nbsp;&nbsp;<code>{{record_name}}</code> — vaccine/medicine name<br>
+        &nbsp;&nbsp;<code>{{due_date}}</code> — due date<br>
+        &nbsp;&nbsp;<code>{{days_left}}</code> — days remaining<br>
+        &nbsp;&nbsp;<code>{{to_email}}</code> — recipient (set as To field)<br>
+        3. Copy your Public Key, Service ID, and Template ID below
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Email Address (receives reminders)</label>
+        <input type="email" id="notif-email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">EmailJS Public Key</label>
+        <input type="text" id="ejs-pubkey" placeholder="user_xxxxxxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">EmailJS Service ID</label>
+        <input type="text" id="ejs-service" placeholder="service_xxxxxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">EmailJS Template ID</label>
+        <input type="text" id="ejs-template" placeholder="template_xxxxxxx">
+      </div>
+      <div id="email-status" style="display:none"></div>
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveEmailSettings()">Save Email Settings</button>
+      <button class="btn-full" style="background:var(--sky);color:#fff;margin-top:8px" onclick="sendTestEmail()">📧 Send Test Email</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">🔔 Browser Push Notifications</div>
+      <div class="settings-sub">Get push notifications on your phone when the app is open in the browser. Works best on Android Chrome. For iPhone, use "Add to Home Screen" in Safari first.</div>
+      <div id="push-status-box" class="warn-box">Push notifications not yet enabled.</div>
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="requestPushPermission()">Enable Push Notifications</button>
+      <button class="btn-full" style="background:var(--sky);color:#fff;margin-top:8px" onclick="sendTestPush()">🔔 Send Test Notification</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">🔍 Check & Send Due Reminders Now</div>
+      <div class="settings-sub">Manually trigger a check for all pets and send any pending reminders right now.</div>
+      <div id="reminder-check-result" style="font-size:12px;color:var(--bark3);margin-bottom:10px;line-height:1.6"></div>
+      <button class="btn-full" style="background:var(--sage);color:#fff" onclick="checkAndSendReminders(true)">Check All & Send Reminders</button>
+    </div>
+
+    <div style="height:30px"></div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: ADD/EDIT DOG ==================== -->
+<div class="modal-overlay" id="modal-dog">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-dog-title">Add Pet Profile</div>
+      <button class="btn-close" onclick="closeModal('modal-dog')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Pet Photo</label>
+        <div class="img-upload" onclick="document.getElementById('dog-photo-input').click()">
+          <div style="font-size:24px;margin-bottom:3px">📷</div>
+          <div style="font-size:12px;color:var(--bark3)">Tap to upload a photo</div>
+          <input type="file" id="dog-photo-input" accept="image/*" style="display:none" onchange="handleDogPhoto(this)">
+        </div>
+        <div class="img-preview" id="dog-photo-preview"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Dog Name *</label><input type="text" id="dog-name" placeholder="Buddy"></div>
+        <div class="form-group"><label class="form-label">Breed</label><input type="text" id="dog-breed" placeholder="Golden Retriever"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" id="dog-dob"></div>
+        <div class="form-group"><label class="form-label">Gender</label>
+          <select id="dog-gender"><option value="">Select</option><option>Male</option><option>Female</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" id="dog-weight" placeholder="12.5" step="0.1"></div>
+        <div class="form-group"><label class="form-label">Color / Markings</label><input type="text" id="dog-color" placeholder="Golden"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Microchip / Tag #</label><input type="text" id="dog-microchip" placeholder="Optional"></div>
+      <div class="form-group"><label class="form-label">Known Allergies</label><input type="text" id="dog-allergies" placeholder="e.g. chicken, dust mites"></div>
+      <div class="form-group"><label class="form-label">Blood Type</label><input type="text" id="dog-blood" placeholder="e.g. DEA 1.1+"></div>
+      <div class="form-group"><label class="form-label">General Notes</label><textarea id="dog-notes" placeholder="Any additional info about your pet..."></textarea></div>
+
+      <div class="sep">Veterinary Contacts</div>
+      <div id="vet-list"></div>
+      <button style="background:var(--sage4);color:var(--sage);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;border:none" onclick="openModal('modal-vet')">+ Add Veterinary</button>
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveDog()">Save Pet Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: ADD VET ==================== -->
+<div class="modal-overlay" id="modal-vet" style="z-index:300">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Add Veterinary</div>
+      <button class="btn-close" onclick="closeModal('modal-vet')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Vet Name *</label><input type="text" id="vet-name" placeholder="Dr. Sarah Johnson"></div>
+      <div class="form-group"><label class="form-label">Clinic / Hospital</label><input type="text" id="vet-clinic" placeholder="City Animal Hospital"></div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" id="vet-phone" placeholder="+1 555 000 0000"></div>
+      <div class="form-group"><label class="form-label">Address</label><textarea id="vet-address" placeholder="123 Main St, City, State" style="min-height:55px"></textarea></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="vet-email" placeholder="vet@clinic.com"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <input type="checkbox" id="vet-primary" style="width:auto;transform:scale(1.3)">
+        <label for="vet-primary" style="font-size:14px;font-weight:600;cursor:pointer">Set as Primary Vet</label>
+      </div>
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveVet()">Add Veterinary</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: ADD HEALTH RECORD ==================== -->
+<div class="modal-overlay" id="modal-record">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Add Health Record</div>
+      <button class="btn-close" onclick="closeModal('modal-record')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Record Type</label>
+        <div class="rtabs">
+          <button class="rtab active" data-type="vaccine" onclick="setRecType('vaccine',this)">💉 Vaccination</button>
+          <button class="rtab" data-type="deworm" onclick="setRecType('deworm',this)">💊 Deworming</button>
+          <button class="rtab" data-type="meds" onclick="setRecType('meds',this)">🩺 Medication</button>
+          <button class="rtab" data-type="other" onclick="setRecType('other',this)">📋 Other</button>
+        </div>
+      </div>
+
+      <!-- VACCINATION FIELDS -->
+      <div id="fields-vaccine">
+        <div class="form-group"><label class="form-label">Vaccine Name *</label><input type="text" id="rv-name" placeholder="e.g. Rabies, DHPP, Bordetella"></div>
+        <div class="form-group"><label class="form-label">Vaccine Category</label>
+          <select id="rv-vtype"><option value="Core">Core (Rabies, DHPP)</option><option value="Lifestyle">Lifestyle (Bordetella, Leptospira)</option><option value="Other">Other</option></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rv-date" onchange="autoNextV()"></div>
+          <div class="form-group"><label class="form-label">Lot / Batch #</label><input type="text" id="rv-lot" placeholder="Optional"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Next Due (default: 1 yr)</label><input type="date" id="rv-next"></div>
+          <div class="form-group"><label class="form-label">Administered By</label><input type="text" id="rv-vet" placeholder="Dr. Name"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea id="rv-notes" placeholder="Reaction, brand, clinic name..."></textarea></div>
+      </div>
+
+      <!-- DEWORMING FIELDS -->
+      <div id="fields-deworm" style="display:none">
+        <div class="form-group"><label class="form-label">Medicine Name *</label><input type="text" id="rd-name" placeholder="e.g. Drontal, Panacur, Milbemax"></div>
+        <div class="form-group"><label class="form-label">Deworming Type</label>
+          <select id="rd-dtype"><option>Roundworm</option><option>Tapeworm</option><option>Hookworm</option><option>Whipworm</option><option>Broad Spectrum</option></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rd-date" onchange="autoNextD()"></div>
+          <div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rd-dose" placeholder="e.g. 1 tablet"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Next Due (default: 3 months)</label><input type="date" id="rd-next"></div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea id="rd-notes" placeholder="Any notes..."></textarea></div>
+      </div>
+
+      <!-- MEDICATION FIELDS -->
+      <div id="fields-meds" style="display:none">
+        <div class="form-group"><label class="form-label">Medication Name *</label><input type="text" id="rm-name" placeholder="e.g. Apoquel, Bravecto, Simparica"></div>
+        <div class="form-group"><label class="form-label">Condition / Purpose</label><input type="text" id="rm-cond" placeholder="e.g. Allergies, Heartworm prevention"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Start Date *</label><input type="date" id="rm-start"></div>
+          <div class="form-group"><label class="form-label">End Date</label><input type="date" id="rm-end"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rm-dose" placeholder="e.g. 16mg once daily"></div>
+          <div class="form-group"><label class="form-label">Prescribed By</label><input type="text" id="rm-vet" placeholder="Dr. Name"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea id="rm-notes" placeholder="Side effects, refill instructions..."></textarea></div>
+      </div>
+
+      <!-- OTHER FIELDS -->
+      <div id="fields-other" style="display:none">
+        <div class="form-group"><label class="form-label">Title *</label><input type="text" id="ro-title" placeholder="e.g. Annual Checkup, X-Ray, Dental Cleaning"></div>
+        <div class="form-group"><label class="form-label">Date *</label><input type="date" id="ro-date"></div>
+        <div class="form-group"><label class="form-label">Provider / Clinic</label><input type="text" id="ro-vet" placeholder="Dr. Name / Clinic"></div>
+        <div class="form-group"><label class="form-label">Notes / Findings</label><textarea id="ro-notes" placeholder="What happened, test results, next steps..."></textarea></div>
+      </div>
+
+      <!-- IMAGE ATTACHMENT -->
+      <div class="form-group">
+        <label class="form-label">📎 Attach Images (prescription, report, certificate)</label>
+        <div class="img-upload" onclick="document.getElementById('rec-img-input').click()">
+          <div style="font-size:20px;margin-bottom:3px">🖼</div>
+          <div style="font-size:11px;color:var(--bark3)">Tap to attach images</div>
+          <input type="file" id="rec-img-input" accept="image/*" multiple style="display:none" onchange="handleRecImgs(this)">
+        </div>
+        <div class="img-preview" id="rec-img-preview"></div>
+      </div>
+
+      <button class="btn-full" style="background:var(--bark);color:#fff" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let S = {
+  dogs: [],
+  settings: {
+    ghToken: '', ghGistId: '',
+    email: '', ejsPubKey: '', ejsService: '', ejsTemplate: '',
+    pushEnabled: false,
+    lastReminderCheck: '',
+    remindersSent: {}
+  }
+};
+let tempVets = [], tempDogPhoto = null, tempRecImgs = [], currentRecType = 'vaccine';
+let editDogId = null, currentDogId = null;
+
+// ============================================================
+// UTILS
+// ============================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function calcAge(dob) {
+  if (!dob) return '';
+  const d = new Date(dob + 'T12:00:00'), n = new Date();
+  let y = n.getFullYear() - d.getFullYear(), m = n.getMonth() - d.getMonth();
+  if (m < 0) { y--; m += 12; }
+  if (y > 0) return `${y}yr${y !== 1 ? 's' : ''} ${m > 0 ? m + 'mo' : ''}`;
+  return `${m}mo`;
+}
+function daysUntil(ds) {
+  if (!ds) return null;
+  const d = new Date(ds + 'T12:00:00'), n = new Date();
+  n.setHours(0, 0, 0, 0);
+  return Math.round((d - n) / 86400000);
+}
+function addMonths(ds, mo) {
+  const d = new Date(ds + 'T12:00:00');
+  d.setMonth(d.getMonth() + mo);
+  return d.toISOString().split('T')[0];
+}
+function addYears(ds, yr) {
+  const d = new Date(ds + 'T12:00:00');
+  d.setFullYear(d.getFullYear() + yr);
+  return d.toISOString().split('T')[0];
+}
+function getDogEmoji(b = '') {
+  const bl = b.toLowerCase();
+  if (bl.includes('golden') || bl.includes('retriever')) return '🦮';
+  if (bl.includes('poodle')) return '🐩';
+  if (bl.includes('husky') || bl.includes('malamute')) return '🐺';
+  if (bl.includes('bulldog') || bl.includes('pug')) return '🐶';
+  return '🐕';
+}
+
+// ============================================================
+// PERSISTENCE — localStorage
+// ============================================================
+function loadState() {
+  try {
+    const s = localStorage.getItem('pawcare_v2');
+    if (s) {
+      const p = JSON.parse(s);
+      S.dogs = p.dogs || [];
+      if (p.settings) S.settings = Object.assign(S.settings, p.settings);
+    }
+  } catch (e) { console.error('Load error', e); }
+  restoreSettingsUI();
+}
+function saveLocal() {
+  localStorage.setItem('pawcare_v2', JSON.stringify(S));
+}
+
+function restoreSettingsUI() {
+  const st = S.settings;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('gh-token', st.ghToken);
+  set('gh-gist-id', st.ghGistId);
+  set('notif-email', st.email);
+  set('ejs-pubkey', st.ejsPubKey);
+  set('ejs-service', st.ejsService);
+  set('ejs-template', st.ejsTemplate);
+  updatePushStatusUI();
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ============================================================
+// SCREEN NAVIGATION
+// ============================================================
+function showLanding() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-landing').classList.add('active');
+  renderLanding();
+  checkAndSendReminders(false);
+}
+function showSettings() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-settings').classList.add('active');
+  restoreSettingsUI();
+}
+function showDogPage(id) {
+  currentDogId = id;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-dog').classList.add('active');
+  renderDogPage();
+}
+
+// ============================================================
+// LANDING PAGE
+// ============================================================
+function renderLanding() {
+  const grid = document.getElementById('dogs-grid');
+  const empty = document.getElementById('empty-state');
+  grid.innerHTML = '';
+  if (!S.dogs.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  S.dogs.forEach(dog => {
+    const card = document.createElement('div');
+    card.className = 'dog-card';
+    card.innerHTML = dogCardHTML(dog);
+    card.addEventListener('click', () => showDogPage(dog.id));
+    grid.appendChild(card);
+  });
+  renderNotifBanner();
+}
+
+function dogCardHTML(dog) {
+  const age = calcAge(dog.dob);
+  const av = dog.photo
+    ? `<img class="dog-avatar" src="${dog.photo}" alt="${dog.name}">`
+    : `<div class="dog-avatar-ph">${getDogEmoji(dog.breed)}</div>`;
+  const pv = (dog.vets || []).find(v => v.primary);
+  const recs = dog.records || [];
+  const chips = [];
+
+  recs.filter(r => r.type === 'vaccine' && r.nextDate).forEach(r => {
+    const d = daysUntil(r.nextDate);
+    chips.push(`<span class="chip ${d < 0 ? 'exp' : d <= 15 ? 'warn' : 'ok'}">💉 ${r.name} ${d < 0 ? 'OVERDUE' : d <= 15 ? `Due in ${d}d` : '✓'}</span>`);
+  });
+  recs.filter(r => r.type === 'deworm' && r.nextDate).forEach(r => {
+    const d = daysUntil(r.nextDate);
+    chips.push(`<span class="chip ${d < 0 ? 'exp' : d <= 15 ? 'warn' : 'lav'}">💊 Deworm ${d < 0 ? 'OVERDUE' : d <= 15 ? `Due in ${d}d` : '✓'}</span>`);
+  });
+  recs.filter(r => r.type === 'meds' && (!r.endDate || new Date(r.endDate + 'T12:00:00') >= new Date())).forEach(r => {
+    chips.push(`<span class="chip sky">🩺 ${r.name}</span>`);
+  });
+
+  return `
+    <div class="dog-card-header">
+      ${av}
+      <div style="flex:1">
+        <div class="dog-name">${dog.name}</div>
+        <div class="dog-sub">${dog.breed || 'Mixed breed'}${age ? ` · ${age}` : ''}</div>
+        ${dog.weight ? `<div style="font-size:10px;color:var(--bark3);margin-top:2px">${dog.weight}kg · ${dog.gender || ''}</div>` : ''}
+        ${pv ? `<div style="font-size:10px;color:var(--sage);font-weight:700;margin-top:3px">🏥 ${pv.name}</div>` : ''}
+      </div>
+      <div style="font-size:18px;opacity:.4">›</div>
+    </div>
+    ${chips.length ? `<div class="chips">${chips.join('')}</div>` : `<div style="font-size:11px;color:var(--bark3);margin-top:4px">No records yet — tap to add</div>`}
+  `;
+}
+
+function renderNotifBanner() {
+  const banner = document.getElementById('notif-banner');
+  const due = getUpcomingDue();
+  if (!due.length) { banner.style.display = 'none'; return; }
+  banner.style.display = 'block';
+  banner.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--rose)">⚠️ ${due.length} upcoming/overdue item${due.length !== 1 ? 's' : ''}: ${due.slice(0, 3).map(d => d.label).join(' · ')}</div>`;
+}
+
+function getUpcomingDue() {
+  const due = [];
+  S.dogs.forEach(dog => {
+    (dog.records || []).forEach(r => {
+      const dateField = (r.type === 'vaccine' || r.type === 'deworm') ? r.nextDate : null;
+      if (!dateField) return;
+      const d = daysUntil(dateField);
+      if (d !== null && d <= 15) {
+        due.push({
+          dogName: dog.name,
+          label: `${dog.name}: ${r.name || r.type} ${d < 0 ? 'OVERDUE' : `in ${d}d`}`,
+          days: d, record: r, dog
+        });
+      }
+    });
+  });
+  return due;
+}
+
+// ============================================================
+// GITHUB GIST SYNC
+// ============================================================
+async function syncToGist() {
+  const { ghToken, ghGistId } = S.settings;
+  if (!ghToken) { setSyncStatus('Setup GitHub sync in ⚙ Settings', 'yellow'); return; }
+  setSyncStatus('Syncing to GitHub...', 'yellow');
+  const content = JSON.stringify({ dogs: S.dogs }, null, 2);
+  try {
+    if (ghGistId) {
+      const r = await fetch(`https://api.github.com/gists/${ghGistId}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: { 'pawcare-data.json': { content } } })
+      });
+      if (!r.ok) throw new Error('Update failed');
+    } else {
+      const r = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: 'PawCare – Pet Health Records',
+          public: false,
+          files: { 'pawcare-data.json': { content } }
+        })
+      });
+      if (!r.ok) throw new Error('Create failed');
+      const data = await r.json();
+      S.settings.ghGistId = data.id;
+      const el = document.getElementById('gh-gist-id');
+      if (el) el.value = data.id;
+      setStatusBox('gh-status', `✓ Gist created! ID: ${data.id}. Save this ID to share with others.`, true);
+      saveLocal();
+    }
+    setSyncStatus('✓ Synced to GitHub', 'green');
+  } catch (e) {
+    setSyncStatus('Sync failed — check token', 'red');
+    console.error(e);
+  }
+}
+
+async function syncFromGist() {
+  const { ghToken, ghGistId } = S.settings;
+  if (!ghToken || !ghGistId) return;
+  try {
+    const r = await fetch(`https://api.github.com/gists/${ghGistId}`, {
+      headers: { 'Authorization': `token ${ghToken}` }
+    });
+    if (!r.ok) return;
+    const data = await r.json();
+    const content = data.files?.['pawcare-data.json']?.content;
+    if (content) {
+      const parsed = JSON.parse(content);
+      if (parsed.dogs) {
+        S.dogs = parsed.dogs;
+        saveLocal();
+        renderLanding();
+        setSyncStatus('✓ Synced from GitHub', 'green');
+      }
+    }
+  } catch (e) { console.error('Sync from gist failed', e); }
+}
+
+async function manualSync() {
+  await syncFromGist();
+  await syncToGist();
+}
+
+function setSyncStatus(msg, color = 'green') {
+  document.getElementById('sync-status-txt').textContent = msg;
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot' + (color === 'yellow' ? ' yellow' : color === 'red' ? ' red' : '');
+}
+
+function saveGithubSettings() {
+  S.settings.ghToken = document.getElementById('gh-token').value.trim();
+  S.settings.ghGistId = document.getElementById('gh-gist-id').value.trim();
+  saveLocal();
+  manualSync().then(() => setStatusBox('gh-status', '✓ Connected and synced successfully!', true));
+}
+
+function setStatusBox(id, msg, ok) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'block';
+  el.className = ok ? 'success-box' : 'warn-box';
+  el.textContent = msg;
+}
+
+// ============================================================
+// EMAIL via EmailJS
+// ============================================================
+function saveEmailSettings() {
+  S.settings.email = document.getElementById('notif-email').value.trim();
+  S.settings.ejsPubKey = document.getElementById('ejs-pubkey').value.trim();
+  S.settings.ejsService = document.getElementById('ejs-service').value.trim();
+  S.settings.ejsTemplate = document.getElementById('ejs-template').value.trim();
+  saveLocal();
+  setStatusBox('email-status', '✓ Email settings saved!', true);
+}
+
+async function sendEmail(to, dogName, recName, dueDate, daysLeft) {
+  const { ejsPubKey, ejsService, ejsTemplate } = S.settings;
+  if (!ejsPubKey || !ejsService || !ejsTemplate || !to) return false;
+  try {
+    const r = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: ejsService,
+        template_id: ejsTemplate,
+        user_id: ejsPubKey,
+        template_params: {
+          to_email: to,
+          dog_name: dogName,
+          record_name: recName,
+          due_date: dueDate,
+          days_left: daysLeft < 0 ? `${Math.abs(daysLeft)} days overdue` : `${daysLeft} day${daysLeft !== 1 ? 's' : ''}`
+        }
+      })
+    });
+    return r.ok || r.status === 200;
+  } catch (e) { console.error('Email error', e); return false; }
+}
+
+async function sendTestEmail() {
+  const { email } = S.settings;
+  if (!email) { alert('Please enter your email address first.'); return; }
+  const sent = await sendEmail(email, 'Buddy', 'Rabies Vaccine', fmtDate(addYears(today(), 0)), 7);
+  setStatusBox('email-status', sent ? '✓ Test email sent! Check your inbox.' : '✗ Could not send. Check your EmailJS credentials and verify the service is active.', sent);
+}
+
+// ============================================================
+// PUSH NOTIFICATIONS
+// ============================================================
+function updatePushStatusUI() {
+  const box = document.getElementById('push-status-box');
+  if (!box) return;
+  if (!('Notification' in window)) {
+    box.className = 'warn-box'; box.textContent = 'Push notifications are not supported in this browser.'; return;
+  }
+  if (Notification.permission === 'granted') {
+    box.className = 'success-box'; box.textContent = '✓ Push notifications are enabled! You will be notified when the app is open in your browser.';
+  } else if (Notification.permission === 'denied') {
+    box.className = 'warn-box'; box.textContent = '✗ Notifications blocked. Go to browser Settings → Site Settings → Notifications and allow this site.';
+  } else {
+    box.className = 'warn-box'; box.textContent = 'Tap "Enable Push Notifications" below to allow reminders on this device.';
+  }
+}
+
+async function requestPushPermission() {
+  if (!('Notification' in window)) { alert('This browser does not support notifications.'); return; }
+  const perm = await Notification.requestPermission();
+  S.settings.pushEnabled = perm === 'granted';
+  saveLocal();
+  updatePushStatusUI();
+  if (perm === 'granted') sendTestPush();
+}
+
+function sendPush(title, body) {
+  if (Notification.permission !== 'granted') return;
+  new Notification(title, {
+    body,
+    icon: 'https://em-content.zobj.net/thumbs/120/apple/354/paw-prints_1f43e.png',
+    badge: 'https://em-content.zobj.net/thumbs/120/apple/354/paw-prints_1f43e.png'
+  });
+}
+
+function sendTestPush() {
+  if (Notification.permission !== 'granted') { alert('Please enable push notifications first.'); return; }
+  sendPush('🐾 PawCare Test Notification', 'Reminders for vaccinations and deworming will look like this!');
+}
+
+// ============================================================
+// REMINDERS — check on app open, once per day
+// ============================================================
+async function checkAndSendReminders(force) {
+  const todayStr = today();
+  if (!force && S.settings.lastReminderCheck === todayStr) return;
+
+  const due = getUpcomingDue();
+  const results = [];
+
+  for (const item of due) {
+    const { days, record, dog } = item;
+    // Send at exactly 15, 7, 1 days before — and every day once overdue
+    const triggerDays = [15, 7, 1];
+    const shouldTrigger = days < 0 || triggerDays.includes(days);
+    if (!shouldTrigger) continue;
+
+    const key = `${record.id}_${days < 0 ? 'overdue' : days}`;
+    if (S.settings.remindersSent[key] && !force) continue;
+
+    const recName = record.name || record.title || record.type;
+    const dueDate = fmtDate(record.nextDate || record.date);
+    const label = days < 0
+      ? `OVERDUE by ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''}`
+      : `due in ${days} day${days !== 1 ? 's' : ''}`;
+
+    // Push notification
+    sendPush(`⚠️ ${dog.name}: ${recName}`, `${recName} is ${label} — ${dueDate}`);
+
+    // Email
+    const sent = await sendEmail(S.settings.email, dog.name, recName, dueDate, days);
+
+    S.settings.remindersSent[key] = Date.now();
+    results.push(`${dog.name}: ${recName} — ${label} | push ✓ | email ${sent ? '✓' : '(configure EmailJS)'}`);
+  }
+
+  S.settings.lastReminderCheck = todayStr;
+  saveLocal();
+
+  const el = document.getElementById('reminder-check-result');
+  if (el && force) {
+    el.innerHTML = results.length
+      ? results.map(r => `<div style="padding:3px 0;border-bottom:1px solid var(--warm)">${r}</div>`).join('')
+      : '<div style="color:var(--sage);font-weight:700">✓ No reminders needed — all records are up to date!</div>';
+  }
+}
+
+// ============================================================
+// ADD DOG
+// ============================================================
+function openAddDog() {
+  editDogId = null; tempVets = []; tempDogPhoto = null;
+  clearDogForm();
+  document.getElementById('modal-dog-title').textContent = 'Add Pet Profile';
+  document.getElementById('dog-photo-preview').innerHTML = '';
+  renderVetList();
+  openModal('modal-dog');
+}
+
+function clearDogForm() {
+  ['dog-name','dog-breed','dog-dob','dog-weight','dog-color','dog-microchip','dog-allergies','dog-blood','dog-notes']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('dog-gender').value = '';
+}
+
+function handleDogPhoto(inp) {
+  const f = inp.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    tempDogPhoto = e.target.result;
+    document.getElementById('dog-photo-preview').innerHTML = `<img class="img-thumb" src="${tempDogPhoto}">`;
+  };
+  r.readAsDataURL(f);
+}
+
+function renderVetList() {
+  const el = document.getElementById('vet-list');
+  el.innerHTML = tempVets.map((v, i) => `
+    <div class="vet-card">
+      <div class="vet-name">${v.name}${v.primary ? '<span class="primary-badge">⭐ Primary</span>' : ''}</div>
+      <div class="vet-info">${[v.clinic, v.phone].filter(Boolean).join(' · ')}</div>
+      <button class="btn-rm" onclick="removeVet(${i})">✕</button>
+    </div>`).join('');
+}
+
+function saveVet() {
+  const name = document.getElementById('vet-name').value.trim();
+  if (!name) { alert('Vet name is required'); return; }
+  const isPrimary = document.getElementById('vet-primary').checked;
+  if (isPrimary) tempVets.forEach(v => v.primary = false);
+  tempVets.push({
+    id: uid(), name,
+    clinic: document.getElementById('vet-clinic').value.trim(),
+    phone: document.getElementById('vet-phone').value.trim(),
+    address: document.getElementById('vet-address').value.trim(),
+    email: document.getElementById('vet-email').value.trim(),
+    primary: isPrimary
+  });
+  ['vet-name','vet-clinic','vet-phone','vet-address','vet-email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('vet-primary').checked = false;
+  renderVetList();
+  closeModal('modal-vet');
+}
+
+function removeVet(i) { tempVets.splice(i, 1); renderVetList(); }
+
+function saveDog() {
+  const name = document.getElementById('dog-name').value.trim();
+  if (!name) { alert('Pet name is required'); return; }
+  const dog = {
+    id: editDogId || uid(), name,
+    breed: document.getElementById('dog-breed').value.trim(),
+    dob: document.getElementById('dog-dob').value,
+    gender: document.getElementById('dog-gender').value,
+    weight: document.getElementById('dog-weight').value,
+    color: document.getElementById('dog-color').value.trim(),
+    microchip: document.getElementById('dog-microchip').value.trim(),
+    allergies: document.getElementById('dog-allergies').value.trim(),
+    blood: document.getElementById('dog-blood').value.trim(),
+    notes: document.getElementById('dog-notes').value.trim(),
+    photo: tempDogPhoto,
+    vets: [...tempVets],
+    records: [],
+    chatNotes: []
+  };
+  if (editDogId) {
+    const idx = S.dogs.findIndex(d => d.id === editDogId);
+    if (idx >= 0) {
+      dog.records = S.dogs[idx].records || [];
+      dog.chatNotes = S.dogs[idx].chatNotes || [];
+      S.dogs[idx] = dog;
+    }
+  } else {
+    S.dogs.push(dog);
+  }
+  saveLocal(); syncToGist();
+  closeModal('modal-dog'); renderLanding();
+}
+
+// ============================================================
+// DOG DETAIL PAGE
+// ============================================================
+function renderDogPage() {
+  const dog = S.dogs.find(d => d.id === currentDogId);
+  if (!dog) return;
+  const recs = dog.records || [];
+  const vaccines = recs.filter(r => r.type === 'vaccine');
+  const deworms = recs.filter(r => r.type === 'deworm');
+  const meds = recs.filter(r => r.type === 'meds');
+  const others = recs.filter(r => r.type === 'other');
+  const age = calcAge(dog.dob);
+  const av = dog.photo
+    ? `<img class="dog-pg-avatar" src="${dog.photo}" alt="${dog.name}">`
+    : `<div class="dog-pg-avatar-ph">${getDogEmoji(dog.breed)}</div>`;
+
+  let html = `
+    <div class="dog-page-header">
+      <div style="display:flex;align-items:flex-end;gap:14px">
+        ${av}
+        <div style="flex:1">
+          <div class="dog-pg-name">${dog.name}</div>
+          <div class="dog-pg-sub">${dog.breed || 'Mixed breed'}${age ? ` · ${age}` : ''}</div>
+          ${dog.weight ? `<div style="font-size:11px;color:var(--bark3);margin-top:2px">${dog.weight}kg · ${dog.gender || ''}</div>` : ''}
+        </div>
+        <button style="background:rgba(255,255,255,.12);color:#fff;border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;border:none;cursor:pointer" onclick="editDog()">Edit</button>
+      </div>
+      ${dog.allergies ? `<div style="margin-top:10px;background:rgba(196,98,106,.15);border-radius:8px;padding:7px 11px;font-size:11px;color:var(--rose2)">⚠️ <strong>Allergies:</strong> ${dog.allergies}</div>` : ''}
+      ${dog.blood ? `<div style="margin-top:6px;font-size:11px;color:var(--bark3)">🩸 Blood: <strong style="color:#fff">${dog.blood}</strong> ${dog.microchip ? `&nbsp;·&nbsp; 🏷 Chip: <strong style="color:#fff">${dog.microchip}</strong>` : ''}</div>` : ''}
+    </div>
+    <div style="padding:14px">
+  `;
+
+  // Vets
+  if (dog.vets && dog.vets.length) {
+    html += `<div class="section-card"><div class="sec-label">🏥 Veterinary Contacts</div>`;
+    dog.vets.forEach(v => {
+      html += `<div class="vet-card" style="margin-bottom:6px">
+        <div class="vet-name">${v.name}${v.primary ? '<span class="primary-badge">⭐ Primary</span>' : ''}</div>
+        <div class="vet-info">${v.clinic || ''}</div>
+        ${v.phone ? `<div class="vet-info">📞 <a href="tel:${v.phone}" style="color:var(--sage)">${v.phone}</a></div>` : ''}
+        ${v.address ? `<div class="vet-info">📍 ${v.address}</div>` : ''}
+        ${v.email ? `<div class="vet-info">✉️ ${v.email}</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Vaccinations
+  html += `<div class="section-card"><div class="sec-label">💉 Vaccinations</div>`;
+  if (!vaccines.length) html += `<div class="no-rec">No vaccination records yet</div>`;
+  vaccines.forEach(r => {
+    const d = daysUntil(r.nextDate);
+    const nc = r.nextDate ? (d < 0 ? 'exp' : d <= 15 ? 'warn' : 'ok') : '';
+    const nl = r.nextDate ? (d < 0 ? `Overdue ${Math.abs(d)}d` : d === 0 ? 'Due today' : `In ${d}d`) : '—';
+    html += `<div class="rec-item">
+      <div style="flex:1">
+        <div class="rec-name">${r.name}</div>
+        <div class="rec-meta">${r.vtype || ''} ${r.lot ? `· Lot #${r.lot}` : ''} ${r.vetProvider ? `· ${r.vetProvider}` : ''}</div>
+        ${r.notes ? `<div class="rec-meta" style="font-style:italic;margin-top:2px">${r.notes}</div>` : ''}
+        ${r.images && r.images.length ? `<div class="img-preview">${r.images.map(img => `<img src="${img}" class="img-thumb">`).join('')}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;min-width:80px">
+        <div class="date-lbl">Given</div>
+        <div class="date-val">${fmtDate(r.date)}</div>
+        ${r.nextDate ? `<div class="date-next ${nc}">↻ ${nl}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Deworming
+  html += `<div class="section-card"><div class="sec-label">💊 Deworming</div>`;
+  if (!deworms.length) html += `<div class="no-rec">No deworming records yet</div>`;
+  deworms.forEach(r => {
+    const d = daysUntil(r.nextDate);
+    const nc = r.nextDate ? (d < 0 ? 'exp' : d <= 14 ? 'warn' : 'ok') : '';
+    const nl = r.nextDate ? (d < 0 ? `Overdue ${Math.abs(d)}d` : d === 0 ? 'Due today' : `In ${d}d`) : '—';
+    html += `<div class="rec-item">
+      <div style="flex:1">
+        <div class="rec-name">${r.name}</div>
+        <div class="rec-meta">${r.dtype || ''} ${r.dose ? `· ${r.dose}` : ''}</div>
+        ${r.notes ? `<div class="rec-meta" style="font-style:italic">${r.notes}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;min-width:80px">
+        <div class="date-lbl">Given</div>
+        <div class="date-val">${fmtDate(r.date)}</div>
+        ${r.nextDate ? `<div class="date-next ${nc}">↻ ${nl}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Medications
+  html += `<div class="section-card"><div class="sec-label">🩺 Medications</div>`;
+  if (!meds.length) html += `<div class="no-rec">No medication records yet</div>`;
+  meds.forEach(r => {
+    const act = !r.endDate || new Date(r.endDate + 'T12:00:00') >= new Date();
+    html += `<div class="rec-item">
+      <div style="flex:1">
+        <div class="rec-name">${r.name} <span class="tag ${act ? 'active' : 'done'}">${act ? 'Active' : 'Completed'}</span></div>
+        <div class="rec-meta">${r.cond || ''} ${r.dose ? `· ${r.dose}` : ''} ${r.vetProvider ? `· ${r.vetProvider}` : ''}</div>
+        ${r.notes ? `<div class="rec-meta" style="font-style:italic">${r.notes}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;min-width:80px">
+        <div class="date-lbl">Start</div>
+        <div class="date-val">${fmtDate(r.startDate)}</div>
+        ${r.endDate ? `<div style="font-size:10px;color:var(--bark3)">End: ${fmtDate(r.endDate)}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Other records
+  if (others.length) {
+    html += `<div class="section-card"><div class="sec-label">📋 Other Records</div>`;
+    others.forEach(r => {
+      html += `<div class="rec-item">
+        <div style="flex:1">
+          <div class="rec-name">${r.title}</div>
+          <div class="rec-meta">${r.vetProvider || ''}</div>
+          ${r.notes ? `<div class="rec-meta" style="font-style:italic">${r.notes}</div>` : ''}
+          ${r.images && r.images.length ? `<div class="img-preview">${r.images.map(img => `<img src="${img}" class="img-thumb">`).join('')}</div>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0;min-width:80px">
+          <div class="date-lbl">Date</div>
+          <div class="date-val">${fmtDate(r.date)}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Notes / Vet Chat
+  const notes = dog.chatNotes || [];
+  html += `
+    <div class="section-card">
+      <div class="sec-label">📝 Notes & Vet Notes</div>
+      <div id="notes-list">
+        ${!notes.length ? '<div class="no-rec">No notes yet — add what the vet said!</div>' : ''}
+        ${notes.map(n => `
+          <div class="note-item">
+            <div class="note-text">${n.text}</div>
+            <div class="note-date">${new Date(n.ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+          </div>`).join('')}
+      </div>
+      <div class="note-row">
+        <input type="text" id="note-input" placeholder="Add a note from the vet or anything you want to remember..." onkeypress="if(event.key==='Enter')addNote()">
+        <button class="btn-send" onclick="addNote()">Add</button>
+      </div>
+    </div>
+    <div style="height:80px"></div>
+  </div>`;
+
+  document.getElementById('dog-page-content').innerHTML = html;
+}
+
+function addNote() {
+  const inp = document.getElementById('note-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const dog = S.dogs.find(d => d.id === currentDogId);
+  if (!dog) return;
+  if (!dog.chatNotes) dog.chatNotes = [];
+  dog.chatNotes.unshift({ id: uid(), text, ts: Date.now() });
+  saveLocal(); syncToGist();
+  renderDogPage();
+}
+
+function editDog() {
+  const dog = S.dogs.find(d => d.id === currentDogId);
+  if (!dog) return;
+  editDogId = dog.id;
+  tempVets = [...(dog.vets || [])];
+  tempDogPhoto = dog.photo || null;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('dog-name', dog.name); set('dog-breed', dog.breed); set('dog-dob', dog.dob);
+  set('dog-weight', dog.weight); set('dog-color', dog.color); set('dog-microchip', dog.microchip);
+  set('dog-allergies', dog.allergies); set('dog-blood', dog.blood); set('dog-notes', dog.notes);
+  document.getElementById('dog-gender').value = dog.gender || '';
+  document.getElementById('dog-photo-preview').innerHTML = dog.photo ? `<img class="img-thumb" src="${dog.photo}">` : '';
+  renderVetList();
+  document.getElementById('modal-dog-title').textContent = 'Edit Pet Profile';
+  openModal('modal-dog');
+}
+
+// ============================================================
+// HEALTH RECORDS
+// ============================================================
+function openAddRecord() {
+  currentRecType = 'vaccine';
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.rtab[data-type="vaccine"]').classList.add('active');
+  ['vaccine','deworm','meds','other'].forEach(t => {
+    document.getElementById(`fields-${t}`).style.display = t === 'vaccine' ? 'block' : 'none';
+  });
+  ['rv-name','rv-lot','rv-vet','rv-notes','rd-name','rd-dose','rd-notes',
+   'rm-name','rm-cond','rm-dose','rm-vet','rm-notes','ro-title','ro-vet','ro-notes']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['rv-date','rv-next','rd-date','rd-next','rm-start','rm-end','ro-date']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('rv-vtype').value = 'Core';
+  document.getElementById('rd-dtype').value = 'Roundworm';
+  tempRecImgs = [];
+  document.getElementById('rec-img-preview').innerHTML = '';
+  openModal('modal-record');
+}
+
+function setRecType(type, btn) {
+  currentRecType = type;
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['vaccine','deworm','meds','other'].forEach(t => {
+    document.getElementById(`fields-${t}`).style.display = t === type ? 'block' : 'none';
+  });
+}
+
+function autoNextV() {
+  const d = document.getElementById('rv-date').value;
+  if (d) document.getElementById('rv-next').value = addYears(d, 1);
+}
+function autoNextD() {
+  const d = document.getElementById('rd-date').value;
+  if (d) document.getElementById('rd-next').value = addMonths(d, 3);
+}
+
+function handleRecImgs(inp) {
+  Array.from(inp.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      tempRecImgs.push(e.target.result);
+      document.getElementById('rec-img-preview').innerHTML += `<img class="img-thumb" src="${e.target.result}">`;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function saveRecord() {
+  const dog = S.dogs.find(d => d.id === currentDogId);
+  if (!dog) return;
+  if (!dog.records) dog.records = [];
+  let rec = { id: uid(), type: currentRecType, images: [...tempRecImgs] };
+
+  if (currentRecType === 'vaccine') {
+    const name = document.getElementById('rv-name').value.trim();
+    if (!name) { alert('Vaccine name is required'); return; }
+    rec = { ...rec, name, vtype: document.getElementById('rv-vtype').value,
+      date: document.getElementById('rv-date').value, nextDate: document.getElementById('rv-next').value,
+      lot: document.getElementById('rv-lot').value.trim(), vetProvider: document.getElementById('rv-vet').value.trim(),
+      notes: document.getElementById('rv-notes').value.trim() };
+  } else if (currentRecType === 'deworm') {
+    const name = document.getElementById('rd-name').value.trim();
+    if (!name) { alert('Medicine name is required'); return; }
+    rec = { ...rec, name, dtype: document.getElementById('rd-dtype').value,
+      date: document.getElementById('rd-date').value, nextDate: document.getElementById('rd-next').value,
+      dose: document.getElementById('rd-dose').value.trim(), notes: document.getElementById('rd-notes').value.trim() };
+  } else if (currentRecType === 'meds') {
+    const name = document.getElementById('rm-name').value.trim();
+    if (!name) { alert('Medication name is required'); return; }
+    rec = { ...rec, name, cond: document.getElementById('rm-cond').value.trim(),
+      startDate: document.getElementById('rm-start').value, endDate: document.getElementById('rm-end').value,
+      dose: document.getElementById('rm-dose').value.trim(), vetProvider: document.getElementById('rm-vet').value.trim(),
+      notes: document.getElementById('rm-notes').value.trim() };
+  } else {
+    const title = document.getElementById('ro-title').value.trim();
+    if (!title) { alert('Title is required'); return; }
+    rec = { ...rec, title, date: document.getElementById('ro-date').value,
+      vetProvider: document.getElementById('ro-vet').value.trim(), notes: document.getElementById('ro-notes').value.trim() };
+  }
+
+  dog.records.unshift(rec);
+  saveLocal(); syncToGist();
+  closeModal('modal-record');
+  renderDogPage();
+  checkAndSendReminders(false);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+setSyncStatus('Loading...', 'yellow');
+showLanding();
+
+// On load: pull from Gist first, then push any local changes
+setTimeout(async () => {
+  if (S.settings.ghToken && S.settings.ghGistId) {
+    await syncFromGist();
+    await syncToGist();
+  } else {
+    setSyncStatus('Setup GitHub sync in ⚙ Settings', 'yellow');
+  }
+}, 600);
+</script>
+</body>
+</html>
 
