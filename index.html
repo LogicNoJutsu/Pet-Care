@@ -170,6 +170,7 @@ textarea{resize:vertical;min-height:68px}
 .share-rec-meta{font-size:10px;color:var(--ink3)}
 #share-preview-wrap{margin-top:14px;border-radius:var(--r2);overflow:hidden;border:1.5px solid #E2E8F0;display:none}
 #share-preview-wrap canvas{width:100%;display:block}
+/* Vehicle doc row in detail */
 .veh-info-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F1F5F9}
 .veh-info-row:last-child{border-bottom:none}
 .veh-info-label{font-size:11px;color:var(--ink3);font-weight:600}
@@ -564,24 +565,6 @@ textarea{resize:vertical;min-height:68px}
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// FILE PREVIEW REGISTRY
-// Fixes the bug where base64 image/file data was embedded directly
-// into onclick="previewFile('...')" attributes. Base64 strings contain
-// characters like +, /, = and quotes that break HTML attributes,
-// making both Preview and Download buttons silently fail.
-//
-// Solution: store file data in a JS object (_fReg) keyed by a short ID,
-// and only put the short key in the onclick attribute.
-// ═══════════════════════════════════════════════════════════════
-const _fReg = {};
-let _fIdx = 0;
-function _reg(data, name) {
-  const k = 'r' + (++_fIdx);
-  _fReg[k] = { data, name };
-  return k;
-}
-
-// ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
 let S={members:[],settings:{ghToken:'',ghGistId:'',email:'',ejsPubKey:'',ejsService:'',ejsTemplate:'',pushEnabled:false,lastReminderCheck:'',remindersSent:{}}};
@@ -609,7 +592,7 @@ function getMemberEmoji(m){
   if(m.memberType==='vehicle'){return m.vtype==='2w'?'🏍':'🚗';}
   if(m.memberType==='pet'){const s=(m.species||'').toLowerCase();if(s==='cat')return'🐱';if(s==='bird')return'🐦';if(s==='rabbit')return'🐰';return'🐶';}
   const r=(m.relation||'').toLowerCase();
-  if(r==='self')return'🧑';if(r.includes('mother')||r.includes('grandmother'))return'👩';if(r.includes('father')||r.includes('grandfather'))return'👨';
+  if(r==='self')return'🧑';if(r.includes('mother')||r.includes('grand'+'mother'))return'👩';if(r.includes('father')||r.includes('grand'+'father'))return'👨';
   if(r==='spouse')return'💑';if(r==='son'||r==='brother')return'👦';if(r==='daughter'||r==='sister')return'👧';return'👤';
 }
 
@@ -628,6 +611,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');if(
 function showLanding(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-landing').classList.add('active');renderLanding();checkAndSendReminders(false);}
 function showSettings(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-settings').classList.add('active');restoreSettingsUI();}
 function showDetail(id){currentMemberId=id;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-detail').classList.add('active');
+  // Show or hide FAB based on type
   const m=S.members.find(x=>x.id===id);
   document.getElementById('detail-fab').style.display=(m&&m.memberType==='vehicle')?'none':'flex';
   renderDetail();}
@@ -795,11 +779,13 @@ function renderVehicleDetail(m){
   const av=m.photo?`<img class="dh-avatar" src="${m.photo}">`:`<div class="dh-avatar-ph">${getMemberEmoji(m)}</div>`;
   let html=`<div class="detail-header"><div style="display:flex;align-items:flex-end;gap:14px">${av}<div style="flex:1"><div class="dh-name">${m.make} ${m.model}</div><div class="dh-sub">${m.vtype==='2w'?'2-Wheeler':'4-Wheeler'}${m.year?' · '+m.year:''}${m.colour?' · '+m.colour:''}</div>${m.regno?`<div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:3px">🔢 ${m.regno}</div>`:''}</div><button style="background:rgba(255,255,255,.1);color:#fff;border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.15);cursor:pointer" onclick="editMember()">Edit</button></div></div><div style="padding:14px">`;
 
+  // Quick status row
   const statuses=[];
   if(m.insExpiry){const d=daysUntil(m.insExpiry);statuses.push(`<div style="flex:1;background:${d<0?'var(--rose3)':d<=30?'var(--amber3)':'var(--sage3)'};border-radius:var(--r);padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:${d<0?'var(--rose)':d<=30?'var(--amber)':'var(--sage)'};margin-bottom:3px">🛡 Insurance</div><div style="font-size:11px;font-weight:700;color:var(--ink)">${fmtDate(m.insExpiry)}</div><div style="font-size:10px;color:${d<0?'var(--rose)':d<=30?'var(--amber)':'var(--sage)'};font-weight:700">${expiryText(d)}</div></div>`);}
   if(m.pucExpiry){const d=daysUntil(m.pucExpiry);statuses.push(`<div style="flex:1;background:${d<0?'var(--rose3)':d<=15?'var(--amber3)':'var(--sage3)'};border-radius:var(--r);padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:${d<0?'var(--rose)':d<=15?'var(--amber)':'var(--sage)'};margin-bottom:3px">💨 PUC</div><div style="font-size:11px;font-weight:700;color:var(--ink)">${fmtDate(m.pucExpiry)}</div><div style="font-size:10px;color:${d<0?'var(--rose)':d<=15?'var(--amber)':'var(--sage)'};font-weight:700">${expiryText(d)}</div></div>`);}
   if(statuses.length) html+=`<div style="display:flex;gap:8px;margin-bottom:12px">${statuses.join('')}</div>`;
 
+  // Registration
   html+=`<div class="section-card"><div class="sec-label">📄 Registration (RC)</div>`;
   html+=`<div class="veh-info-row"><span class="veh-info-label">Registration No.</span><span class="veh-info-val">${m.regno||'—'}</span></div>`;
   if(m.chassis)html+=`<div class="veh-info-row"><span class="veh-info-label">Engine / Chassis</span><span class="veh-info-val">${m.chassis}</span></div>`;
@@ -807,6 +793,7 @@ function renderVehicleDetail(m){
   if(m.rcExpiry){const d=daysUntil(m.rcExpiry);html+=`<div class="veh-info-row"><span class="veh-info-label">RC Expiry</span><div style="text-align:right"><div class="veh-info-val">${fmtDate(m.rcExpiry)}</div><div class="${expiryClass(d)}">${expiryText(d)}</div></div></div>`;}
   html+=`</div>`;
 
+  // Insurance
   html+=`<div class="section-card"><div class="sec-label">🛡 Insurance</div>`;
   if(m.insurer)html+=`<div class="veh-info-row"><span class="veh-info-label">Insurer</span><span class="veh-info-val">${m.insurer}</span></div>`;
   if(m.insPolicy)html+=`<div class="veh-info-row"><span class="veh-info-label">Policy No.</span><span class="veh-info-val">${m.insPolicy}</span></div>`;
@@ -815,12 +802,14 @@ function renderVehicleDetail(m){
   if(!m.insurer&&!m.insExpiry)html+=`<div class="no-rec">No insurance info — tap Edit to add</div>`;
   html+=`</div>`;
 
+  // PUC
   html+=`<div class="section-card"><div class="sec-label">💨 Pollution (PUC)</div>`;
   if(m.pucIssue)html+=`<div class="veh-info-row"><span class="veh-info-label">Issue Date</span><span class="veh-info-val">${fmtDate(m.pucIssue)}</span></div>`;
   if(m.pucExpiry){const d=daysUntil(m.pucExpiry);html+=`<div class="veh-info-row"><span class="veh-info-label">Expiry</span><div style="text-align:right"><div class="veh-info-val">${fmtDate(m.pucExpiry)}</div><div class="${expiryClass(d)}">${expiryText(d)}</div></div></div>`;}
   if(!m.pucIssue&&!m.pucExpiry)html+=`<div class="no-rec">No PUC info — tap Edit to add</div>`;
   html+=`</div>`;
 
+  // Fitness & Permit
   if(m.fitnessExpiry||m.permitExpiry){
     html+=`<div class="section-card"><div class="sec-label">✅ Fitness &amp; Permit</div>`;
     if(m.fitnessExpiry){const d=daysUntil(m.fitnessExpiry);html+=`<div class="veh-info-row"><span class="veh-info-label">Fitness Cert Expiry</span><div style="text-align:right"><div class="veh-info-val">${fmtDate(m.fitnessExpiry)}</div><div class="${expiryClass(d)}">${expiryText(d)}</div></div></div>`;}
@@ -828,15 +817,18 @@ function renderVehicleDetail(m){
     html+=`</div>`;
   }
 
+  // Service
   html+=`<div class="section-card"><div class="sec-label">🔧 Service <button onclick="openVehicleServiceModal()" style="background:var(--navy);color:#fff;border-radius:50px;padding:3px 10px;font-size:10px;font-weight:700;border:none;cursor:pointer">+ Log</button></div>`;
   if(m.odo)html+=`<div class="veh-info-row"><span class="veh-info-label">Current Odometer</span><span class="veh-info-val">${parseInt(m.odo).toLocaleString()} km</span></div>`;
   if(m.lastSvc)html+=`<div class="veh-info-row"><span class="veh-info-label">Last Service</span><span class="veh-info-val">${fmtDate(m.lastSvc)}</span></div>`;
   if(m.nextSvc){const d=daysUntil(m.nextSvc);html+=`<div class="veh-info-row"><span class="veh-info-label">Next Service Due</span><div style="text-align:right"><div class="veh-info-val">${fmtDate(m.nextSvc)}</div><div class="${expiryClass(d)}">${expiryText(d)}</div></div></div>`;}
+  // Service history records
   const svcRecs=(m.records||[]).filter(r=>r.type==='veh-service');
   if(svcRecs.length){html+=`<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Service History</div>`;svcRecs.forEach(r=>{html+=buildVehRecHTML(r);});}
   if(!m.lastSvc&&!m.nextSvc&&!svcRecs.length)html+=`<div class="no-rec">No service info yet</div>`;
   html+=`</div>`;
 
+  // Loan
   if(m.lender||m.emi||m.loanEnd){
     html+=`<div class="section-card"><div class="sec-label">💳 Loan</div>`;
     if(m.lender)html+=`<div class="veh-info-row"><span class="veh-info-label">Lender</span><span class="veh-info-val">${m.lender}</span></div>`;
@@ -846,53 +838,42 @@ function renderVehicleDetail(m){
     html+=`</div>`;
   }
 
+  // Other records (repairs, modifications)
   const otherRecs=(m.records||[]).filter(r=>r.type!=='veh-service');
-  html+=`<div class="section-card"><div class="sec-label">🛠 Repairs &amp; Other Records</div>`;
-  if(!otherRecs.length) html+=`<div class="no-rec">No repair records — tap + Add Record</div>`;
-  otherRecs.forEach(r=>html+=buildVehRecHTML(r));
-  html+=`</div>`;
+  if(otherRecs.length||true){
+    html+=`<div class="section-card"><div class="sec-label">🛠 Repairs &amp; Other Records</div>`;
+    if(!otherRecs.length) html+=`<div class="no-rec">No repair records — tap + Add Record</div>`;
+    otherRecs.forEach(r=>html+=buildVehRecHTML(r));
+    html+=`</div>`;
+  }
 
-  // ── Documents section (FIXED: uses _reg for eye buttons) ──────────────────
+  // Documents
   const docs=m.docs||[];
   html+=`<div class="section-card"><div class="sec-label">📄 Documents <button onclick="openAddDoc(true)" style="background:var(--navy);color:#fff;border-radius:50px;padding:3px 10px;font-size:10px;font-weight:700;border:none;cursor:pointer">+ Add</button></div>`;
   if(!docs.length)html+=`<div class="no-rec">No documents yet — add RC, Insurance, PUC, etc.</div>`;
   docs.forEach((d,i)=>{
-    const eyeBtns=[
-      ...(d.images||[]).map((src,j)=>{
-        const k=_reg(src,d.title+' — Image '+(j+1));
-        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 Image ${j+1}</button>`;
-      }),
-      ...(d.files||[]).map(f=>{
-        const k=_reg(f.data,f.name);
-        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 ${f.name}</button>`;
-      })
-    ];
+    const eyeBtns=[...(d.images||[]).map((src,j)=>`<button class="eye-btn" onclick="previewFile('${src}','${d.title} — Image ${j+1}')">👁 Image ${j+1}</button>`),
+      ...(d.files||[]).map(f=>`<button class="eye-btn" onclick="previewFile(\`${f.data}\`,'${f.name.replace(/'/g,"\\'")}')">👁 ${f.name}</button>`)];
     html+=`<div class="doc-card"><div class="doc-title">📑 ${d.title}</div>${d.notes?`<div class="doc-note">${d.notes}</div>`:''} ${eyeBtns.length?`<div style="display:flex;flex-wrap:wrap;margin-top:7px">${eyeBtns.join('')}</div>`:''}</div>`;
   });
   html+=`</div>`;
 
+  // Notes
   const notes=m.chatNotes||[];
   html+=`<div class="section-card"><div class="sec-label">📝 Notes</div><div id="notes-list">`;
   if(!notes.length)html+=`<div class="no-rec">No notes yet</div>`;
   notes.forEach(n=>{html+=`<div class="note-item"><div class="note-text">${n.text}</div><div class="note-date">${fmtDT(n.ts)}</div></div>`;});
   html+=`</div><div class="note-row"><input type="text" id="note-input" placeholder="Add a note..." onkeypress="if(event.key==='Enter')addNote()"><button class="btn-send" onclick="addNote()">Add</button></div></div>`;
+
+  // Vehicle-specific add record button (no FAB for vehicles)
   html+=`<div style="padding:16px 0"><button onclick="openAddRecord()" style="background:var(--navy);color:#fff;border-radius:var(--r);padding:13px;font-size:14px;font-weight:700;width:100%;border:none;cursor:pointer">＋ Add Service / Repair Record</button></div>`;
   html+=`<div style="height:30px"></div></div>`;
   document.getElementById('detail-content').innerHTML=html;
 }
 
-// ── buildVehRecHTML (FIXED: uses _reg for eye buttons) ────────────────────────
 function buildVehRecHTML(r){
-  const eyeBtns=[
-    ...(r.images||[]).map((src,i)=>{
-      const k=_reg(src,'Image '+(i+1));
-      return '<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+k+'\')">👁 Image '+(i+1)+'</button>';
-    }),
-    ...(r.files||[]).map(f=>{
-      const k=_reg(f.data,f.name);
-      return '<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+k+'\')">👁 '+f.name+'</button>';
-    })
-  ];
+  const eyeBtns=[...(r.images||[]).map((src,i)=>'<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+src+'\',\'Image '+(i+1)+'\')">👁 Image '+(i+1)+'</button>'),
+    ...(r.files||[]).map(f=>'<button class="eye-btn" onclick="event.stopPropagation();previewFile(`'+f.data+'`,\''+f.name.replace(/'/g,"\\'")+'\')">👁 '+f.name+'</button>')];
   const attachments=eyeBtns.length?'<div style="display:flex;flex-wrap:wrap;margin-top:6px">'+eyeBtns.join('')+'</div>':'';
   const actions='<div style="display:flex;gap:5px;margin-top:7px"><button onclick="event.stopPropagation();deleteRecord(\''+r.id+'\')" style="background:var(--rose3);color:var(--rose);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer">🗑 Delete</button></div>';
   const meta=[r.garage,r.odo?r.odo+' km':'',r.cost?'₹'+parseInt(r.cost).toLocaleString():''].filter(Boolean).join(' · ');
@@ -928,21 +909,12 @@ function renderDetail(){
     html+=`</div>`;
   });
 
-  // ── Person/Pet Documents section (FIXED) ────────────────────────────────────
   const docs=m.docs||[];
   html+=`<div class="section-card"><div class="sec-label">📄 Documents</div>`;
   if(!docs.length)html+=`<div class="no-rec">No documents — add via Edit</div>`;
   docs.forEach((d,i)=>{
-    const eyeBtns=[
-      ...(d.images||[]).map((src,j)=>{
-        const k=_reg(src,d.title+' — Image '+(j+1));
-        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 Image ${j+1}</button>`;
-      }),
-      ...(d.files||[]).map(f=>{
-        const k=_reg(f.data,f.name);
-        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 ${f.name}</button>`;
-      })
-    ];
+    const eyeBtns=[...(d.images||[]).map((src,j)=>`<button class="eye-btn" onclick="previewFile('${src}','${d.title} — Image ${j+1}')">👁 Image ${j+1}</button>`),
+      ...(d.files||[]).map(f=>`<button class="eye-btn" onclick="previewFile(\`${f.data}\`,'${f.name.replace(/'/g,"\\'")}')">👁 ${f.name}</button>`)];
     html+=`<div class="doc-card"><div class="doc-title">📑 ${d.title}</div>${d.type&&d.title!==d.type?`<div style="font-size:10px;color:var(--violet);font-weight:600;margin-top:2px">${d.type}</div>`:''} ${d.notes?`<div class="doc-note">${d.notes}</div>`:''} ${eyeBtns.length?`<div style="display:flex;flex-wrap:wrap;margin-top:7px">${eyeBtns.join('')}</div>`:''}</div>`;
   });
   html+=`</div>`;
@@ -958,18 +930,9 @@ function renderDetail(){
 
 function recActions(r){return'<div style="display:flex;gap:5px;margin-top:7px"><button onclick="event.stopPropagation();editRecord(\''+r.id+'\')" style="background:var(--sky3);color:var(--sky);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer">✏️ Edit</button><button onclick="event.stopPropagation();deleteRecord(\''+r.id+'\')" style="background:var(--rose3);color:var(--rose);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer">🗑 Delete</button></div>';}
 
-// ── buildRecHTML (FIXED: uses _reg for eye buttons) ───────────────────────────
 function buildRecHTML(r){
-  const eyeBtns=[
-    ...(r.images||[]).map((src,i)=>{
-      const k=_reg(src,'Image '+(i+1));
-      return '<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+k+'\')">👁 Image '+(i+1)+'</button>';
-    }),
-    ...(r.files||[]).map(f=>{
-      const k=_reg(f.data,f.name);
-      return '<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+k+'\')">👁 '+f.name+'</button>';
-    })
-  ];
+  const eyeBtns=[...(r.images||[]).map((src,i)=>'<button class="eye-btn" onclick="event.stopPropagation();previewFile(\''+src+'\',\'Image '+(i+1)+'\')">👁 Image '+(i+1)+'</button>'),
+    ...(r.files||[]).map(f=>'<button class="eye-btn" onclick="event.stopPropagation();previewFile(`'+f.data+'`,\''+f.name.replace(/'/g,"\\'")+'\')">👁 '+f.name+'</button>')];
   const attachments=eyeBtns.length?'<div style="display:flex;flex-wrap:wrap;margin-top:6px">'+eyeBtns.join('')+'</div>':'';
   const actions=recActions(r);
   if(r.type==='meds'){const act=!r.endDate||new Date(r.endDate+'T12:00:00')>=new Date();const rd=r.refillDate?daysUntil(r.refillDate):null;const rtag=rd!==null?'<span class="tag '+(rd<0?'exp':rd<=10?'refill':'ok')+'">🔄 Refill '+(rd<0?'overdue':'in '+rd+'d')+'</span>':'';return'<div class="rec-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div style="flex:1"><div class="rec-name">'+r.name+' <span class="tag '+(act?'active':'done')+'">'+(act?'Active':'Done')+'</span>'+rtag+'</div><div class="rec-meta">'+[r.dosage,r.frequency,r.condition].filter(Boolean).join(' · ')+'</div>'+(r.notes?'<div class="rec-meta" style="font-style:italic">'+r.notes+'</div>':'')+attachments+'</div><div style="text-align:right;flex-shrink:0;min-width:72px"><div class="date-lbl">Start</div><div class="date-val">'+fmtDate(r.startDate)+'</div>'+(r.refillDate?'<div class="date-next '+(rd<0?'exp':rd<=10?'warn':'ok')+'">↻ '+fmtDate(r.refillDate)+'</div>':'')+'</div></div>'+actions+'</div>';}
@@ -1048,12 +1011,22 @@ function setRecType(t,btn){currentRecType=t;document.querySelectorAll('#rec-type
 function renderRecFields(type,mtype){
   const el=document.getElementById('rec-fields');let h='';
   if(type==='veh-service'||type==='veh-repair'||type==='veh-tyre'||type==='veh-accident'||(type==='other'&&mtype==='vehicle')){
-    const labels={'veh-service':'Service','veh-repair':'Repair / Part Replacement','veh-tyre':'Tyre Change / Rotation','veh-accident':'Accident / Damage','other':'Other Record'};
+    const labels={
+      'veh-service':'Service',
+      'veh-repair':'Repair / Part Replacement',
+      'veh-tyre':'Tyre Change / Rotation',
+      'veh-accident':'Accident / Damage',
+      'other':'Other Record'
+    };
     h=`<div class="form-group"><label class="form-label">Title *</label><input type="text" id="rf-title" placeholder="${labels[type]||'e.g. Oil Change & Filter'}"></div>
     <div class="form-group"><label class="form-label">Date *</label><input type="date" id="rf-date"></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Garage / Service Centre</label><input type="text" id="rf-garage" placeholder="e.g. Maruti Authorized"></div><div class="form-group"><label class="form-label">Odometer (km)</label><input type="number" id="rf-odo" placeholder="35000"></div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Garage / Service Centre</label><input type="text" id="rf-garage" placeholder="e.g. Maruti Authorized"></div>
+      <div class="form-group"><label class="form-label">Odometer (km)</label><input type="number" id="rf-odo" placeholder="35000"></div>
+    </div>
     <div class="form-group"><label class="form-label">Cost (₹)</label><input type="number" id="rf-cost" placeholder="Total amount paid"></div>
-    <div class="form-group"><label class="form-label">Notes / Parts Replaced</label><textarea id="rf-notes" placeholder="Details, parts changed, warranty info..."></textarea></div>`;}
+    <div class="form-group"><label class="form-label">Notes / Parts Replaced</label><textarea id="rf-notes" placeholder="Details, parts changed, warranty info..."></textarea></div>`;
+  }
   else if(type==='meds'){h=`<div class="form-group"><label class="form-label">Medication Name *</label><input type="text" id="rf-name" placeholder="${mtype==='person'?'e.g. Metformin 500mg':'e.g. Apoquel, Bravecto'}"></div><div class="form-row"><div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rf-dosage" placeholder="1 tablet"></div><div class="form-group"><label class="form-label">Frequency</label><select id="rf-freq"><option>Once daily</option><option>Twice daily</option><option>Three times daily</option><option>Every 8 hours</option><option>Every 12 hours</option><option>Weekly</option><option>Monthly</option><option>As needed</option></select></div></div><div class="form-group"><label class="form-label">Condition / Purpose</label><input type="text" id="rf-cond" placeholder="e.g. Diabetes, Blood pressure control"></div><div class="form-row"><div class="form-group"><label class="form-label">Start Date *</label><input type="date" id="rf-start" onchange="calcRefill()"></div><div class="form-group"><label class="form-label">End Date (blank = ongoing)</label><input type="date" id="rf-end"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Days Supply</label><input type="number" id="rf-supply" placeholder="30 days" onchange="calcRefill()"></div><div class="form-group"><label class="form-label">Refill Date (auto-calc)</label><input type="date" id="rf-refill"></div></div><div class="warn-box" style="font-size:11px;margin:0 0 10px">💡 Enter Days Supply → refill date auto-set to 10 days before running out.</div><div class="form-group"><label class="form-label">Prescribed By</label><input type="text" id="rf-doctor" placeholder="Dr. Name"></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="Side effects, instructions..."></textarea></div>`;}
   else if(type==='vaccine'){const lbl=mtype==='person'?'Immunization':'Vaccine';h=`<div class="form-group"><label class="form-label">${lbl} Name *</label><input type="text" id="rf-name" placeholder="${mtype==='person'?'Flu Vaccine, Hepatitis B':'Rabies, DHPP'}"></div><div class="form-row"><div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rf-date" onchange="autoNV()"></div><div class="form-group"><label class="form-label">Lot / Batch #</label><input type="text" id="rf-lot" placeholder="Optional"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Next Due (auto: 1yr)</label><input type="date" id="rf-next"></div><div class="form-group"><label class="form-label">Administered By</label><input type="text" id="rf-vp" placeholder="Dr. / Clinic"></div></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="Reaction, brand..."></textarea></div>`;}
   else if(type==='deworm'){h=`<div class="form-group"><label class="form-label">Medicine Name *</label><input type="text" id="rf-name" placeholder="Drontal, Panacur"></div><div class="form-group"><label class="form-label">Type</label><select id="rf-dtype"><option>Roundworm</option><option>Tapeworm</option><option>Hookworm</option><option>Broad Spectrum</option></select></div><div class="form-row"><div class="form-group"><label class="form-label">Date Given *</label><input type="date" id="rf-date" onchange="autoND()"></div><div class="form-group"><label class="form-label">Dosage</label><input type="text" id="rf-dose" placeholder="1 tablet"></div></div><div class="form-group"><label class="form-label">Next Due (auto: 3 months)</label><input type="date" id="rf-next"></div><div class="form-group"><label class="form-label">Notes</label><textarea id="rf-notes" placeholder="Any notes..."></textarea></div>`;}
@@ -1073,9 +1046,11 @@ function saveRecord(){
   const m=S.members.find(x=>x.id===currentMemberId);if(!m)return;if(!m.records)m.records=[];
   const existingId=editRecordId||uid();
   let rec={id:existingId,type:currentRecType,images:[...tempRecImgs],files:[...tempRecFiles]};
+  // Vehicle record types
   if(['veh-service','veh-repair','veh-tyre','veh-accident'].includes(currentRecType)||(currentRecType==='other'&&m.memberType==='vehicle')){
     const t=gv('rf-title');if(!t){alert('Title required');return;}
     rec={...rec,title:t,date:gv('rf-date'),garage:gv('rf-garage'),odo:gv('rf-odo'),cost:gv('rf-cost'),notes:gv('rf-notes')};
+    // update vehicle last service
     if(currentRecType==='veh-service'&&gv('rf-date')){m.lastSvc=gv('rf-date');if(gv('rf-odo'))m.odo=gv('rf-odo');}
   }
   else if(currentRecType==='meds'){const n=gv('rf-name');if(!n){alert('Name required');return;}rec={...rec,name:n,dosage:gv('rf-dosage'),frequency:gv('rf-freq'),condition:gv('rf-cond'),startDate:gv('rf-start'),endDate:gv('rf-end'),supply:gv('rf-supply'),refillDate:gv('rf-refill'),vetProvider:gv('rf-doctor'),notes:gv('rf-notes')};}
@@ -1128,7 +1103,7 @@ function sendPush(title,body){if(Notification.permission!=='granted')return;new 
 function sendTestPush(){if(Notification.permission!=='granted'){alert('Enable first');return;}sendPush('🏥 MediTrack','Reminders will appear like this!');}
 
 // ═══════════════════════════════════════════════════════════════
-// REMINDERS
+// REMINDERS (incl. vehicle)
 // ═══════════════════════════════════════════════════════════════
 async function checkAndSendReminders(force){
   const ts=today();if(!force&&S.settings.lastReminderCheck===ts)return;
@@ -1174,31 +1149,9 @@ loadState();setSyncStatus('Loading...','y');showLanding();
 setTimeout(async()=>{if(S.settings.ghToken&&S.settings.ghGistId){await syncFromGist();await syncToGist();}else setSyncStatus('Setup sync in ⚙','y');},600);
 
 // ═══════════════════════════════════════════════════════════════
-// LIGHTBOX (FIXED)
+// LIGHTBOX
 // ═══════════════════════════════════════════════════════════════
-function previewFile(key, name) {
-  // Look up the key in the registry; fall back to using key as raw src (legacy)
-  let src = key, nm = name;
-  if (_fReg[key]) { src = _fReg[key].data; nm = _fReg[key].name || name; }
-  const lb  = document.getElementById('lightbox');
-  const img = document.getElementById('lightbox-img');
-  const lbl = document.getElementById('lightbox-label');
-  const dl  = document.getElementById('lightbox-dl');
-  const isImg = /^data:image|\.(?:png|jpe?g|gif|webp|bmp|svg)/i.test(src);
-  if (isImg) {
-    img.src = src;
-    img.style.display = 'block';
-    dl.style.display  = 'none';
-  } else {
-    img.style.display  = 'none';
-    dl.href            = src;
-    dl.download        = nm || 'file';
-    dl.textContent     = '⬇ Download ' + (nm || 'File');
-    dl.style.display   = 'inline-block';
-  }
-  lbl.textContent = nm || '';
-  lb.classList.add('open');
-}
+function previewFile(src,name){const lb=document.getElementById('lightbox');const img=document.getElementById('lightbox-img');const lbl=document.getElementById('lightbox-label');const dl=document.getElementById('lightbox-dl');const isImg=/^data:image|\.(?:png|jpe?g|gif|webp|bmp|svg)/i.test(src);if(isImg){img.src=src;img.style.display='block';dl.style.display='none';}else{img.style.display='none';dl.href=src;dl.download=name||'file';dl.textContent=`⬇ Download ${name||'File'}`;dl.style.display='inline-block';}lbl.textContent=name||'';lb.classList.add('open');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLightbox();}});
 
@@ -1265,6 +1218,9 @@ function generateShareImage(){
   const canvas=document.getElementById('share-canvas');const ctx=canvas.getContext('2d');
   const lines=[];const age=calcAge(m.dob);
   lines.push({type:'header',name:m.name,sub:m.memberType==='vehicle'?((m.vtype==='2w'?'2-Wheeler':'4-Wheeler')+' · '+(m.fuel||'')+(m.year?' · '+m.year:'')).trim():m.memberType==='person'?(m.relation||'')+(age?' · '+age:''):(m.species||'Pet')+': '+(m.breed||'')+(age?' · '+age:''),extra:m.memberType==='vehicle'?m.regno:'',blood:m.blood,isPerson:m.memberType==='person'});
+  // collect selected
+  const sels=document.querySelectorAll('.share-cat-body input:checked');
+  sels.forEach(cb=>{/* simplified — just show name */});
   lines.push({type:'footer'});
   const LS={header:90,section:44,kv:28,recname:26,recmeta:20,footer:44};
   let totalH=PADDING;lines.forEach(l=>{totalH+=(LS[l.type]||24)+2;});totalH+=PADDING;
