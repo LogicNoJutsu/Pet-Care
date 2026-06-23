@@ -860,11 +860,11 @@ function renderVehicleDetail(m){
     const eyeBtns=[
       ...(d.images||[]).map((src,j)=>{
         const k=_reg(src,d.title+' — Image '+(j+1));
-        return '<button class="eye-btn" onclick="previewFile(''+k+'')">👁 Image '+(j+1)+'</button>';
+        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 Image ${j+1}</button>`;
       }),
       ...(d.files||[]).map(f=>{
         const k=_reg(f.data,f.name);
-        return '<button class="eye-btn" onclick="previewFile(''+k+'')">👁 '+f.name+'</button>';
+        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 ${f.name}</button>`;
       })
     ];
     html+=`<div class="doc-card"><div class="doc-title">📑 ${d.title}</div>${d.notes?`<div class="doc-note">${d.notes}</div>`:''} ${eyeBtns.length?`<div style="display:flex;flex-wrap:wrap;margin-top:7px">${eyeBtns.join('')}</div>`:''}</div>`;
@@ -936,11 +936,11 @@ function renderDetail(){
     const eyeBtns=[
       ...(d.images||[]).map((src,j)=>{
         const k=_reg(src,d.title+' — Image '+(j+1));
-        return '<button class="eye-btn" onclick="previewFile(''+k+'')">👁 Image '+(j+1)+'</button>';
+        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 Image ${j+1}</button>`;
       }),
       ...(d.files||[]).map(f=>{
         const k=_reg(f.data,f.name);
-        return '<button class="eye-btn" onclick="previewFile(''+k+'')">👁 '+f.name+'</button>';
+        return `<button class="eye-btn" onclick="previewFile('${k}')">👁 ${f.name}</button>`;
       })
     ];
     html+=`<div class="doc-card"><div class="doc-title">📑 ${d.title}</div>${d.type&&d.title!==d.type?`<div style="font-size:10px;color:var(--violet);font-weight:600;margin-top:2px">${d.type}</div>`:''} ${d.notes?`<div class="doc-note">${d.notes}</div>`:''} ${eyeBtns.length?`<div style="display:flex;flex-wrap:wrap;margin-top:7px">${eyeBtns.join('')}</div>`:''}</div>`;
